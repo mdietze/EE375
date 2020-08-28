@@ -320,7 +320,7 @@ prod(1:10)		  ## product of values in a vector
 7.	**Generate a sequence of even numbers from -6 to 6**
 8.	**Generate a sequence of values from -4.8 to -3.43 that is length 8** (show code)
   - What is the difference between values in this sequence?
-9.	**What is the sum of the _exponential_ of the sequence in question 8?
+9.	**What is the sum of the _exponential_ of the sequence in question 8?**
 
 ## Help and Documentation
 
