@@ -1,0 +1,528 @@
+---
+title: "Lab 2 - Data manipulation and visualizations"
+author: "EE375"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    toc_collapsed: false
+---
+
+# Objectives
+
+Today we will continue to learn about more advanced operations in R, focusing on data manipulation and visualization. This lab picks up from where Lab 1 left off, so you might want to take a quick look at Lab 1 to refresh your memory.
+
+# Assignment 
+
+For this activity you will turn in a Rmd file that contains both code and written answers. 
+
+**Always check that the Rmd file "knits" before submitting!**
+
+# Preparation 
+
+
+It is best to start every lab with a clean environment. In other words, you don't want any variables from previous work to be saved in your environment when starting a new project. This could easily cause confusion and errors in your calculations. 
+
+It is good coding practice to keep your environment as clutter free as possible and to clear it regularly. 
+
+To do this, click on the the broom icon at the top of the Environment pane.
+![](http://test-pecan.bu.edu/shiny/GE375/clean_environment.png){width=50px}
+
+Now that your environment is clean, we will load in the data.
+
+We'll be using the same data that we used in Lab 1. However, it is recommended that you copy the data file in to the same folder as Lab 2. Then we can run the code:
+
+```{r}
+dat = read.table("Lab1_frogs.txt",header=TRUE)
+met = read.csv("met_hourly.csv")
+met = met[-(8065:8088),]  ## remove the one day in the file that comes from 2014
+```
+
+## Subsetting Data
+
+Data within vectors, matrices, and data frames can be accessed using [ ] notation.  Subsets of data can also be accessed by specifying just rows, just columns, or ranges within either.  These are often referred to as subscripts or indices and the first is the row number while the second is the column.
+ 
+```{r}
+x = 1:10
+x[5]  	   # select the 5th element only
+dat		     # select the entire data frame
+dat[5,1]	 # select the entry in the 5th row, 1st column
+dat[,2]	 	 # select all rows of the second column
+dat[1:5,]	 # select rows 1 through 5, all columns
+dat[6:10,2:3] 	 # select rows 6 through 10, columns 2 and 3
+```
+ 
+We can also refer to specific columns of data by name using the $ syntax
+
+```{r}
+dat$frogs  	      # show just the 'frogs' column
+dat$color[6:10]		# show the 6th though 10th elements of the color column
+met$AirTemp[1:10] # show the first 10 values of air temperature
+```
+
+In general, it is better to **access data by name**, rather than using the row and column numbers, because this makes your code easier to understand and debug, making the process of coding less error prone. It also makes it much easier to adapt your code to new situations or data sets, where the columns might not come in the same order, or the data might not have the same number of rows or columns. This highlights a more general point, that you should use variables to represent names and numbers, especially if those names and numbers are reused, rather than 'hard coding' numeric values into the code.
+
+Another useful feature of R is that in additon to using positive indices to display specific rows, we can also use *negative* indices to remove specific rows. For example, if I wanted to drop the first 3 rows from the frog data:
+```{r}
+dat[-(1:3),]
+```
+
+
+Finally, our ability to access data is not restricted to consecutive rows and columns, and vectors can also be used for indexing other vectors. For example:
+ 
+```{r}
+x = c(1,10,100,1000)
+met$time[x]  		## return specific elements of a vector
+```
+
+
+## ★ Questions (1-4)
+
+1. **Show the 1033rd through 1056th row of weather data**
+2. **Show the 3rd through 8th rows of the 1st though 3rd columns of the frog data**
+3.	**Show just the odd numbered rows in the frog data. Write this code for the GENERAL CASE -- don’t just type c(1,3,5,…) but use functions that you learned in Lab 1 to set up the sequence.**
+4. **What was the _total_ amount of rain?** Hint: look back at Vector Math from Lab 1
+
+## Converting Data Types
+
+Sometimes we need to convert data from one data type to another. Most often this occurs when R reads data in as a different type than what we need. For example, if R has some numbers represented as character data, we can't actually use them in calculations.
+
+```{r}
+x = c("3.14","2.10","42")
+```
+If, for example, we tried to multiply `x*2` R would return an error message
+```
+Error in x * 2 : non-numeric argument to binary operator
+```
+We can fix this by asking R to convert `x` to numeric first
+```{r}
+x = as.numeric(x)
+x * 2
+```
+
+R has conversion functions for all of it's basic data types, as well as many more advanced derived data types
+```{r}
+as.character(dat$color)  ## make sure colors are character
+as.numeric(dat$spots)    ## from logical to numeric
+as.logical(0:1)          ## from numeric to logical
+as.POSIXlt(met$time[1:24],tz = "GMT") ## date time conversion
+```
+The last example is more complicated and reflects that R has some fairly sophisticated tools for handling dates and times. In this case we're converting the _character_ column `time` to one of R's datetime representations. In general it is much more handy to convert dates and times to datetime variables, rather than leaving them as character strings, as there's a lot more we can do with them that way (e.g. extract specific days, times, months, etc).
+
+Furthermore, R also has conversion functions for *data structures* as well, if you even need to convert one data structure into another:
+```{r}
+as.matrix(x)
+as.data.frame(x)
+as.list(x)
+```
+
+## ★ Questions (5)
+5. **Using the frog data, show just the spots column as characters**
+
+# Logical operators and indexing
+
+## Logical operators
+
+R can perform standard logical comparisons, which can be very useful for *comparing and selecting data*. It's important to know the syntax for the different logical operators, some of which are odd:
+
+```
+>	  # greater than
+<	  # less than
+>=	# greater than or equal to
+<=	# less than or equal to
+==	# equal to (TWO equals signs...you were very close!)
+!=	# not equal
+```
+		
+As a simple example you could compare individual numbers:
+ 
+```{r}
+1 > 3
+5 < 7
+4 >= 4
+-11 <= pi
+log(1) == 0
+exp(0) != 1
+```
+
+You can also combine multiple logical operators using the symbols for ‘and’ (`&`) and ‘or’ (`|`)
+
+```{r}
+w = 4
+w > 0 & w < 10
+w < 0 | w > 10
+```
+
+You can also apply logical operators to vectors and matrices. When you type a "logical" expression like `y > x` in R you get a `TRUE`/`FALSE` answer of the same shape as the inputs. For example, if we wanted to find all the ponds where there was a high density of tadpoles (which we'll define as greater than 5) we could do this as:
+
+```{r}
+z = dat$tadpoles > 5
+z
+```
+
+You will notice that by default logical operations are performed element-by-element. If you want to apply a logical test to a whole vector at a time you can use the function `any` to test if any of the values are true and `all` to test if all values are true
+
+```{r}
+any(dat$tadpoles > 5) # At least one of the values of tadpoles is larger than 5 so this will be TRUE
+all(dat$tadpoles > 5) # All of the values of tadpoles are not larger than 5 so this will be FALSE
+```
+
+Note that when your data is characters you'll need double-quotes in your comparison. e.g. 
+
+```{r}
+a = c("north","south","east","west")
+a == "east"
+```
+
+
+## Logical vectors
+
+A "logical vector" (i.e. a vector made up of logical values) can be a particularly useful tool when selecting and subsetting data. 
+
+Take for example the logical vector that we created earlier:
+
+```{r}
+z = dat$tadpoles > 5
+z
+```
+
+For each value of tadpoles, we are checking if it is larger than 5.
+
+But which values in tadpoles are larger than 5?
+
+By looking at the data we can see that the 9th through 20th rows are `TRUE` and the other values are `FALSE`. But if the data were much longer, it would **not** be reasonable to look at it to find the answer. For example, in our met data, we might want to know how many days had temperatures > 25C, which is impractical to do by hand as there are `r nrow(met)` rows of data
+
+Instead we can use the function `which` for this very purpose: the `which` function returns the *indices* of the `TRUE` values in a logical vector. 
+
+```{r}
+z = which(met$AirTemp > 25)
+length(z)  ## how many values meet this criteria
+head(z)    ## show the first few examples
+```
+
+You can also sometimes treat `TRUE` and `FALSE` just like 1 and 0, which can be very useful. If you want to count the number of values of AirTemp that are larger than 13, you can use the `sum` function:
+
+
+```{r}
+hot = sum(met$AirTemp > 25)
+hot
+```
+Recall that our met data is hourly for the year 2013, so this indicates that a total of `r hot` hours were over 25C at this site (Lake Sunapee, NH) in this year.
+
+Logicals don't always work exactly like 0 and 1 in some situations, so be careful. You can always convert them explicitly with `as.numeric` if need be.
+ 
+## Subsetting using logical vectors
+
+So far we've seen that we can use logical vectors and their indices to identify conditions of interest and to count things, but frequently we need the ability to subset data based on criteria. For example, we might want to pull all the data for 'hot' days into a separate data frame for further analyses (were those days sunnier than average? less rainy?)
+
+You also need to know that logical vectors can be used as indices for other vectors of the same length. Commonly, you'll use them as indices to one of the vectors that produced them.
+
+For example, if we want to know the actual values in `y` that are larger than 13
+
+```{r}
+hot = met$AirTemp > 25 # create a logical vector 
+
+hotData = met[hot,] # use the logical vector to select the `hot` rows in met
+```
+
+Or, skipping the middleman:
+
+```{r}
+hotData = met[met$AirTemp > 25,]
+summary(hotData)
+```
+
+These simple comparisons can provide a powerful means for subsetting data.
+
+## The subset function
+
+R also has a built in function `subset` for doing this sort of subsetting that takes the data set as the first argument and the condition used for subsetting as the second argument. So the above could also be rewritten as
+ 
+```{r}
+hotData = subset(met, AirTemp > 25)
+```
+
+`subset` also has an optional 3rd argument for just selecting specific columns. So if you wanted to run the previous subset but only needed the columns `ShortWave` and `Rain` you could run
+
+```{r}
+# select the rows of dat for which frogs are larger than or equal to 3
+# select the columns tadpoles and spots
+foo = subset(met, AirTemp > 25, select = c("ShortWave","Rain"))
+head(foo)
+```
+
+## ★ Questions (6)
+6.	**For the frog data set:** 
+*  a.	display just the rows where frogs have spots
+*  b.	display just the rows where frogs are blue
+*  c.	how many blue tadpoles are there?
+*  d.	create a new object containing just the rows where there are between 3 and 5 tadpoles
+*  e.	display just the rows where there are less than 2.5 red frogs
+*  f.	display where either frogs do not have spots or there are more than 5 frogs
+
+# Summary tables and statistics
+
+## Tables
+
+Often understanding our data requires more than just being able to subset the raw data, but also the ability to summarize that data. The **table** command can do basic tabulation and cross tabulation of logical and categorical data (i.e. counting up the different cases)
+
+```{r}
+table(dat$color)           ## basic table
+table(dat$color,dat$spots) ## cross table
+```
+
+## Summary statistics
+
+There are also a number of commands for calculating basic statistical measures.
+
+*min* and *max* return the smallest and largest values respectively
+```{r}
+min(met$AirTemp)				        ## smallest value
+max(met$AirTemp)				        ## largest value
+```
+while the *range* function returns both the min and max at the same time
+```{r}
+range(met$AirTemp)
+```
+
+*median* returns the median value, which is the one in the middle of a sorted list, such that half the values are larger and half are smaller
+```{r}
+median(met$AirTemp)
+```
+
+More generally, we can use the *quantile* function to find any percentile of a data set, not just the median (50%)
+```{r}
+quantile(met$AirTemp,c(0.25,0.75))		## 25% and 75% quantiles
+```
+and the *IQR* function returns the inter-quartile range (the difference between the 75th and 25th percentiles)
+```{r}
+IQR(met$AirTemp)
+```
+
+By far the most common summary statistic you'll encounter is the arithmetric *mean*
+
+$$mean(x) = \bar{x} = {{1}\over{n}} \sum x_i$$
+```{r}
+mean(met$AirTemp)
+```
+
+The other thing we'll encounter a lot this semester are statistics that measure uncertainty and variability. The most common measure of variability is *variance* which is calculated using the `var` function
+$$var(x) = {1 \over {n-1}} \sum (x-\bar{x})^2$$
+```{r}
+var(met$AirTemp)  		 	        ## variance (Celsius^2)
+```
+Variance is a measure of the mean squared difference, and as such it's units are that of the square of whatever units the data have (in this example Censius squared). For this reason, many people find it hard to interpret variances directly. If we take the square root of a variance we get a measure, the *standard deviation* that's in the same units as the data and thus much easier to interpret.
+```{r}
+sd(met$AirTemp)				          ## standard deviation (Celsius)
+```
+
+In addition to being able to calculate the variance of a single variable, we can also calculate a *covariance* to measure how two variables vary together
+
+$$cov(x,y) = {1 \over {n-1}} \sum (x-\bar{x})(y-\bar{y}) $$
+
+```{r}
+cov(met$AirTemp,met$LongWave)		## covariance between air temp and long wave (thermal) radiation
+```
+Looking that these equations you'll also notice that *var(x) = cov(x,x)* (i.e. that variance is just the covariance of a variable with itself). 
+
+The other thing you'll notice is that the units of covariance are the product of the two variables, and thus are even harder to interpret than variance (in this case, the units are `Celsius*Watts`). Because of this, it is also common to normalize the cov by the standard deviations of the two variables to give us a unitless measure of how two variables are related known as *correlation*
+
+$$cor(x,y) = {{cov(x,y)} \over {sd(x) sd(y)}}$$
+```{r}
+cor(met$AirTemp,met$LongWave)		## correllation
+```
+Correlation coefficients vary from 1 to -1, with 1 indicating a perfect positive correlation (positive slope), 0 indicating no correlation, and -1 indicating a perfect negative correlation (negative slope).
+
+
+## Apply
+
+R also has a set of `apply` functions for applying any function to sets of values within a data structure.
+
+The function `apply` will apply a function to either every row (dimension 1) or every column (dimension 2) of a matrix or data.frame. In this example the commands apply the `sum` function to the first two columns of the data (frogs & tadpoles) first calculated by row (the total number of individuals in each population) and second by column (the total number of frogs and tadpoles)
+
+![](http://test-pecan.bu.edu/shiny/GE375/apply_1.png){width=600px}
+
+```{r}
+# calculate sum of frogs & tadpoles by row (1st dimension)
+apply(dat[1:5,1:2], MARGIN = 1, FUN = sum)  
+```
+![](http://test-pecan.bu.edu/shiny/GE375/apply_2.png){width=600px}
+
+```{r}
+# calculate sum of frogs & tadpoles by column (2nd dimension)
+apply(dat[1:5,1:2], MARGIN = 2, FUN = sum)  
+```
+
+The function `tapply` will apply a function to an R data object, grouping data according to a second variable or set of variables. The first example applies the `mean` function to frogs grouping them by color. The second shows that `tapply` can be used to apply a function over multiple groups, in this case color and spots. 
+
+```{r}
+# calculate mean of frogs by color
+tapply(dat$frogs, INDEX = dat$color, FUN = mean)  
+```
+
+
+![](http://test-pecan.bu.edu/shiny/GE375/tapply.png){width=200px}
+
+```{r}
+# calculate mean of frogs by color & spots
+tapply(dat$frogs, INDEX =  dat[,c("color","spots")], FUN = mean)  
+```
+
+## ★ Questions (7)
+7. **Use apply to calculate the across-population standard deviations in the numbers of frogs and tadpoles**
+
+# Plotting & visualization
+
+## Base plots
+
+There are a *lot* of options for plotting data in R, far more than we could cover in one lab, so the aim here it to provide a basic introduction to the the most common plotting functions. 
+
+For example, you can make a simple *histogram* of data using the function `hist`
+```{r}
+hist(met$AirTemp) ## histogram
+abline(v = mean(met$AirTemp),col="red") ## add a (v)ertical line at the mean, set the (col)or to red
+```
+
+You can also make a *scatterplot* of two variables against each other using the `plot` function
+
+```{r}
+plot(met$AirTemp, met$LongWave)  ## x-y scatter plot
+```
+
+There are a multitude of optional arguements to plotting functions that can be used to control all aspects of the plot aesthetics -- you'll end up learning most of these through examples used in future labs. For example, if I wanted to add labels to the previous scatterplot and change the plotting character (pch) I could do that as:
+
+```{r}
+plot(met$AirTemp, met$LongWave,
+     cex = 0.5,      ## decrease the symbol size 50%
+     col = "purple", ## change the point color
+     pch = "+",      ## change the point symbol
+     xlab = "Air Temperature (Celsius)",  ## label the x-axis with name and units
+     ylab = "Longwave Radiation (Watts)", ## label the y-axis with name and units
+     cex.lab = 1.3,			# increase the axis label font size by 30%
+     main = "2013 weather data, Lake Sunapee, NH", # title
+     cex.main = 1.5			# increase title font size 50%
+     )
+```
+Throughout the semester, you'll be making a *LOT* of plots, and it's important to get in the habit early of producing figures with proper axes labels, units, and (where needed) legends
+
+R's plotting functions also allow us to vary things like symbols, color, and size depending on attributes of the data, which can be extremely helpful for teasing out patterns in data
+```{r}
+plot(dat$frogs,dat$tadpoles,
+     cex = 1.5,    		        # increase the symbol size
+     col = as.character(dat$color),	# change the symbol color by name
+     pch = dat$spots + 1,			# change the symbol (by number)
+     cex.axis = 1.3,			    # increase the font size on the axis 
+     xlab = "Frog Density",		# label the x axis
+     ylab = "Tadpole Density",# label the y axis
+     cex.lab = 1.3,			      # increase the axis label font size
+     main = "Frog Reproductive Effort", # title
+     cex.main = 2			        # increase title font size
+     )
+legend("topleft",  ## draw legend in top corner
+       c("Red no spot","Blue no spot","Red spots","Blue Spots"), ## legend text (vector)
+       pch = c(1,1,2,2),                      ## matching vectors of plot characters adn color
+       col = c("red","blue","red","blue"),
+       cex = 1.3
+       )
+```
+
+R plots can also handle dates and time intellegently if they're in the right format
+```{r}
+time <- as.POSIXlt(met$time,tz="GMT")
+plot(time,met$AirTemp,
+     type = 'l',   ## switch to plotting lines instead of points
+     ylab = "Air Temperature (Celsius)",  ## label the y-axis with name and units
+     )
+```
+
+The functions `lines` and `points` are also frequently used to add additional lines and points (respectively) to an existing plot.
+```{r}
+met$time <- as.POSIXct(met$time,tz="GMT")  ## coerce time from character to datetime
+plot(time,met$AirTemp,
+     type = 'l',   ## switch to plotting lines instead of points
+     ylab = "Air Temperature (Celsius)",  ## label the y-axis with name and units
+     )
+
+month = months(met$time)                                  ## extract months from dates
+Tbar  = tapply(met$AirTemp,INDEX = month,FUN = mean)  ## calc monthly mean temp
+mbar  = tapply(time,INDEX = month,FUN = mean)         ## calc monthly mean date
+mbar  = as.POSIXct(mbar,origin="1970-01-01 00:00.00 UTC") ## coerce result back to datetime
+points(mbar,Tbar,col="red",pch=18,cex=2)              ## add monthly means to plot as solid diamonds (pch=18)
+```
+
+For those accustomed to making figures with software that allows you to manipulate plots by hand by clicking on them, the process of making visualizations with code can initially feel difficult and frustrating. For example, you might want to nudge a label over by a little and you can't just drag it, you have to look up a lot of details in the `plot` or `par` functions to understand how to modify your code. However, what producing figures by code provides, which is ultimately time saving, is reliable *REPRODUCIBILITY*. It doesn't take many experiences of having to re-tweak a manual figure by hand when the data is updated, or when you need to produce a very similar plot for a similar dataset, to realize that manual, interactive figure drawing is imprecise, inefficient, and not scalable when you need to keep making figures (e.g. dashboards, regular reports).
+
+In addition to rendering plots directly within Markdown, within the Plot window, graphs can be cut-and-pasted into other documents or saved to file fairly simply by using Export. If you want to automate the process of exporting graphics, for example when you generate a whole bunch of figures at once and don’t want to Export each one by hand, you'll want to use the graphical functions such as 'postscript', 'pdf', or 'tiff'. For all of these plot functions there are numerous additional (optional) arguments that control the formatting of the plots. The help for `par` (i.e. `?par`) gives a fairly detailed list of these options, some of which you will see in further examples below.
+
+## ★ Questions (8-10)
+8. **Plot a histogram of blue frogs**
+9. **Plot shortwave (solar) radiation against time**
+10. **Plot shortwave (solar) radiation against relative humidity**
+ 
+## Tidyverse
+
+Beyond `plot` and `hist` the course readings cover additional info data visualizations, and there's even more information provided in the "Additional Resources" section of the syllabus. Visualization also brings us to introduce the concept of the `tidyverse`. Up to now Lab 1 and Lab 2 have relied solely on "base" R packages -- tools that ship with R and have been around for decades. Over the last few years Hadley Wickham and colleagues have introduces a set of new packages for data manipulation and visualization that "share an underlying design philosophy, grammar, and data structures" around what they call "tidy" data. The tidyverse provides a number of alternative functions for subsetting and summarizing data that go beyond the first introduction provided above (see, for example, the data wrangling chapters in Wickham's [R for Data Science](https://r4ds.had.co.nz/)). But one of the most popular parts of the tidyverse are its data visualization tools, which are anchored around the `ggplot2` package, which numerous other packages build upon (see the Reverse Dependencies listing for the package https://cran.r-project.org/web/packages/ggplot2/index.html)
+
+The syntax for ggplot is a bit less intuitive than `plot`, but the following tool `esquisse` provides a graphical interface around ggplot that then returns the underlying code used to generate the plot.
+
+Outside of knitr, run the following code to install and launch `esquisse`
+```
+install.packages("esquisse")  ## only needs to be run once
+esquisse::esquisser()         ## launch tool
+```
+Once the tool launches use it to answer the following questions. Note that you won't be able to type here while the tool is running, so you may want to copy the questions, and your answers, to another doc temporarily.
+
+
+## ★ Questions (11-16)
+
+11. **Histogram**
+* Select “met” as the data.frame
+* Click “validate imported data”
+* Drag AirTemp into the Y box (which will initially cause the tool to draw a histogram)
+* Click on “Labels and Title” to add axes labels, units, and title
+* Click on “Plot options” to change the color, theme, and number of bins
+* Click on “Data” and filter the dates down to just the summer (approximately)
+* Click on Export & code and hit “insert code into script” to add the code for this figure
+* When you do this you’ll see a lot of new syntax. First, the `%>%` is known as the _pipe operator_ and is used string together multiple functions. So here we see that we start with the met data, then we filter it based upon time, then we call ggplot(). After we call ggplot we see that the different parts of the figure are added together using a `+`. First, we use `aes` (aesthetic) to select the data being used. Then `geom_histogram` is called to plot a histogram, with additional arguments for the number of bins and the fill color (in this case specified using a hexadecimal color code). Next, we see axis labels being set using the `labs` command. Finally we see the theme that’s been applied.
+* Turn in the code for drawing your histogram
+
+12. **Density plot**
+* With the same data loaded up click on the “Histogram” icon in the top left you can see that you can also change the type of plot drawn. Click “density” to see how the plot changes and how the underlying code changes.
+* Play with the options to get a plot you like
+* Using Export, turn in the code for drawing your density plot 
+ 
+13. **Line plot**
+* Returning to the ggplot builder, next drag “time” into the X box, which should turn the plot into a time series line plot.
+* As before you can play with label, plot options, data filtering, etc
+* Export this code to your Rmd as well and briefly explain (in text) what has changed in your code from the histogram plot
+
+14. **Colored line plot**
+* Drag the “shortwave” data into the “Color” box. This should now cause the color of the line to change as a function of the incoming solar radiation
+* After playing with options, export this code as well
+* Describe the impact that Shortwave radiation has on air temperature. Note both the diurnal (daily) cycle (How does temperature change as shortwave increases and deceases throughout the day? When is temperature at its max and min?) and across days (How does shortwave radiation impact the amplitude of the diurnal cycle?). Note: to be able to see diurnal cycles clearly you’ll need to have zoomed in to a few months or smaller, not the whole time series.
+
+15. **Scatterplot**
+* At the top left click on “Data” and change to the frog data “dat”
+* Plot tadpoles vs frogs and then drag the color variable to the Color box and the spots variable to the Size box
+* Set labels, select plot options that provide a good color scheme, theme, etc
+* Export the code and describe the new functions and arguments being used.
+
+16. **Facet and group plots**
+* Drag spots from Size to Facet. This will cause ggplot to now draw separate plots for the spots=TRUE data and the spots=FALSE data. Export this plot code.
+* Similarly, if you change the plot to type ‘line’ in the top left and then drag spots from “Facet” to “Group” it will now draw separate lines for each case of spots. This feature can be particularly handy when you have data from many different discrete classes (states, plots, year, etc).
+
+Hit the Close button on the ggplot2 builder and check to make sure that it put the code chunks in the right place with each question, that the R code is within executable R code blocks, and that the figures still render correctly when you hit ‘Knit’
+
+# Synopsis
+
+Most of Labs 1 and 2 are meant to familiarize you with R, so that when you encounter a problem you need to solve you will have a vague memory of something that might work and can use this as a reference. Over time you will come to remember a larger and larger fraction of this detail and through exploration you will find many additional functions and coding techniques that are useful. However, here are some parting thoughts on what you should take home at the end of the day.
+
+*	Save code early and often
+*	Keep code well documented
+*	Use meaningful variable names
+*	Develop a habit of actively searching and exploring R. 
+ +	Read the help documents for a function
+ +	Search for new functions and techniques
+ +	Scour the web when debugging. 
+* The key to good programming is being able to teach yourself
