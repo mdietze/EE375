@@ -1,0 +1,223 @@
+---
+title: "Lab 03 - Interactive Visualization"
+author: "EE375"
+runtime: shiny
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    toc_collapsed: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(shiny)   ## install these two packages in the Packages window (one time)
+library(plotly)
+library(tidyverse)
+```
+
+```{r, echo=FALSE}
+### load met data from previous labs
+met = read.csv("met_hourly.csv")
+met = met[sample.int(nrow(met),500),] ## subsample data
+```
+
+```{r,echo=FALSE}
+  ## Draw Plot (code from Lab 2)
+  plot(met$AirTemp, met$LongWave,
+     cex = 0.5,      ## decrease the symbol size 50%
+     col = "purple", ## change the point color
+     pch = "+",      ## change the point symbol
+     xlab = "Air Temperature (Celsius)",  ## label the x-axis with name and units
+     ylab = "Longwave Radiation (Watts)", ## label the y-axis with name and units
+     cex.lab = 1.3,			# increase the axis label font size by 30%
+     main = "2013 weather data, Lake Sunapee, NH", # title
+     cex.main = 1.5			# increase title font size 50%
+     )
+```
+
+# Objectives
+
+There are two primary goals to this lab
+
+1. Learn how to make interactive graphics
+
+2. Think about how we fit and score simple models
+
+# Starting with a line...
+
+Unlike the previous lab, we're going to start with only a small amount of code and have you develop more of the application yourself. Specifically, the code above starts by loading up the met data we've used the last two labs and repeating the (non-interactive) plot of air temperature versus short wave (thermal) radiation. The only difference is that we've thinned the data a bit to make the graphic render more quickly. 
+
+The first thing we're going to do is to add a line to the plot. In the R code block above add the following code after the plot:
+```
+b0 = 350  ## intercept
+b1 = 0    ## slope
+x = seq(min(met$AirTemp),max(met$AirTemp),length=100) ## make a sequence of x values
+```
+
+1. With the intercept, slope, and x in place, next add the calculation of a straight line, and store that in the variable `y`.
+
+2. After calculating y, use `x`,`y` and the `lines` function to add your line to the plot. 
+
+3. Knit your document to verify that the code runs and produces a plot
+
+# Put this in Shiny
+
+Next we're going to move the plot into R's "Shiny" interactive graphics system.
+
+To start we're going to embed our plot in a Shiny `renderPlot` block. Specifically, put a call to `renderPlot` at the start before you draw the plot
+```
+renderPlot({
+```
+and then close 
+```
+ },
+ height=600) ## set the vertical dimension on the size of the plot
+```
+This is a pretty unique syntax which we haven't seen before, whereby a whole chunk of code (between the `{` and `}`) is the first arguement to the function. The second argument tells Shiny how big to make the plot. Try knitting your document. Right now renderPlot isn't going to look any different when you Knit it because we haven't made anything interactive yet.
+
+# Add an inputPanel
+
+Our next step is to add an `inputPanel`. This will allow us to interactively control different aspects of the plot. In this case, what we're going to do is to create two slider bars, one that controls the intercept of our line (b0), and the other that controls the slope (b1). Before the `renderPlot` block of code, add the following:
+```
+## Interactive Controls
+inputPanel(
+  sliderInput("b0", label = "Intercept (b0):",
+              min = 0, max = 500, value = 350, step = 5),
+  sliderInput("b1", label = "Slope (b1):",
+              min = 0, max = 10, value = 0, step = 0.1)
+)
+```
+The `inputPanel` function literally creates a panel in our figure with input controls in it. If you put this function before renderPlot, the controls will be on top, while if you put it below the controls will be on the bottom. The arguements to the `inputPanel`function are calls to different R Shiny "input widget" functions. In this specific case we're setting up slider bars, which we can do using the `sliderInput` function. This function has a number of required arguements: 
+
+* inputId = name of variable you want to control (in quotes)
+* label = text displayed on the slider
+* min = lower end of the slider
+* max = upper end of the slider
+* value = initial default
+* step = how much the value changes as we slide the bar
+ 
+`inputPanel` can take any number of arguments, one for each widget we want to add, with the order of the arguments controlling the order these widgets are in the graph. There's a [wide variety of different widgets](https://shiny.rstudio.com/tutorial/written-tutorial/lesson3/) you can add to a Shiny app to control different things. These include:
+
+* `actionButton` - 	Action Button
+* `checkboxGroupInput` -	A group of check boxes
+* `checkboxInput` -	A single check box
+* `dateInput` -	A calendar to aid date selection
+* `dateRangeInput` -	A pair of calendars for selecting a date range
+* `fileInput` -	A file upload control wizard
+* `helpText` -	Help text that can be added to an input form
+* `numericInput` -	A field to enter numbers
+* `radioButtons` -	A set of radio buttons
+* `selectInput` -	A box with choices to select from
+* `sliderInput` -	A slider bar
+* `submitButton` -	A submit button
+* `textInput` -	A field to enter text
+
+** Knit the document to see the addition of the inputPanel**
+
+# Connecting the plumbing
+
+At this point you should see our inputPanel render, but you'll be disappointed that nothing happens when you try moving the slider bars. This is because we haven't yet connected the variables in the inputPanel to the code in the renderPlot. To do this you need to know that the values set by the input widgets are saved in the variable `input`. So, within renderPlot we'll need to replace
+```
+  y = b0 + b1*x
+```
+with
+```
+  y = input$b0 + input$b1*x
+```
+when we do this we can also drop the lines
+```
+b0 = 350  ## intercept
+b1 = 0    ## slope
+```
+because we no longer need to (or want to) hard-code the values of the slope and intercept to specific values
+
+**Knit the document and play with the slope and intercept sliders to control the line**
+
+### Hints for debugging in Shiny
+
+If by this point you've made any mistakes when coding up the lab you've probably discovered that Shiny is even less forgiving than normal R if there are any errors. Often you're whole figure will be replaced by a single error message, and it can be unclear which specific line caused the error. Here are some hints to help you try and debug Shiny
+
+1. **Start simply, add complexity.** Much like we're doing in this lab, build up more complex apps one step at a time and check that the app runs between every step. If you've only changed one or two lines of code, then most of the time your bug is in one of those new lines.
+2. **Try running code interactively.** For example, if you skip past the `renderPlot({` you can still run the remaining bits of code line-by-line or by selecting chunks and running them. This can often make it easier to find the offending line of code.
+3. **Create a dummy `input`.** One of the challenges of running Shiny code interactively is that some parts of your code will depend on the `input` variables, but those are never defined explictly because they're coming from the `inputPanel`. You can get around this by creating an `input` object yourself with test values in it. For example, running
+```
+input = data.frame(b0=350,b1=0)
+```
+will create an input object in memory that you can then use to run your renderPlot code.
+
+# What makes a good fit?
+
+## ★ Questions (1)
+
+1. As you play with your Shiny app, some values of slope and intercept will draw a line that goes through the data, and some will not. If you're job was to manually find a line that is a good description of the relationship between Air Temperature and Longwave Radiation, what values would you choose for the slope and intercept?
+
+# Scoring Metrics
+
+In this section we're going to try to come up with a **metric** to use to score whether our fit was any good or not. In doing so let's start by calculating `ypred`, the value predicted by our line for every value of air temperature.
+```
+  ## Calculate score
+  ypred = input$b0 + input$b1*met$AirTemp
+```
+With this predicted value in hand we can calculate the `error` of our simple linear model as the difference between the predicted y values and the observed y values (=long wave)
+```
+error = ypred - met$LongWave
+```
+Now, this should give us a vector just as long as the original data, which, as we'll see later in the class can be really helpful in diagnosing visually how well a model is doing, but we want some way to distill down these `r nrow(met)` error values into a single score.
+
+One possible choice of score would be to add up all the errors
+```
+score = sum(error) ## calculates our error metric
+score              ## reports the score
+```
+
+Our problem now is to figure out how to get R Shiny to interactively show us the score of any particular line. While there are more elegant options, one simple way is to use a `renderText` function. This has a very similar syntax to `renderPlot`
+```
+renderText({
+
+  <<insert scoring code here>>
+
+})
+```
+
+You should now put all of these pieces together and add the scoring code `renderText` to our R Shiny app. Depending where you place this code (before `inputPanel`, between `inputPanel` and `renderPlot` or after `renderPlot`) will determine where it shows up in the plot
+
+**Knit your code now and verify that the score has been added to your app and changes as you change the slope and intercept**
+
+# Finding a better score
+
+While our current score (total error) may initially seem to make sense, it has some limitations that become clear if we play around with it. For example, you could tinker around and find a line that fits really good such that the error score = 0 (yeah!) but you could also leave the slope flat and just set the intercept to the mean y value `r mean(met$LongWave)` and also get a score of zero. This occurs because at the mean the negative errors exactly cancel out the positive errors. So in this case we have two lines with the same score, but we would consider one a 'good fit' and the other a 'bad fit'. Similarly, if we dragged the intercept down, we'd get a negative error score. Is that good or bad? In other words, this metric has the disadvantage that we can't maximize it or minimize it to find the 'best' fit.
+
+## ★ Questions (2)
+
+2. Propose a better **metric** that you could use to score whether your fit was any good or not. Implement it in your scoring function, Knit your code, and see if it works (i.e. is maximized or minimized when the fit is 'best'). Describe the rational for your score. Report the best score you could find and the slope and intercept that produce that score.
+ 
+# Render the plot using plotly
+
+So thus far we've drawn all of our plots using base R graphics. However, we could draw our plots using an alternative plotting library, such as ggplot2, if we wanted to. As a final task we're going to draw a second version of our plot using an interactive graphing library known as `plotly`, which has a syntax is somewhat similar to ggplot
+
+Add the following to your Shiny app. 
+```
+renderPlotly({
+ x = seq(min(met$AirTemp),max(met$AirTemp),length=100)
+ y = input$b0 + input$b1*x
+ 
+ plotly::plot_ly(met) %>%
+ plotly::add_trace(x = ~AirTemp, y = ~LongWave,type='scatter',mode= 'markers') %>%  
+ plotly::add_trace(x=x,y=y,type = 'scatter', mode = 'lines')
+})
+```
+Normally we'd wouldn't draw the same plot twice, but in this case LEAVE your existing `renderPlot` so we can see the code you came up with.
+
+**Knit your document** and then click on your plot to explore the interactive features of plotly. These include
+* hovering over points to see the value of the underlying data
+* zooming in on different parts of the graph
+* "spike lines" that draw dashed lines to the axes
+* "compare data" on hover, which can more easily report the values of multiple features (e.g. both points and line)
+* select data points by box or lasso
+* download figure to png
+
+<!-- Ignore code below this line, it's for formatting the table of contents. -->
+<!-- ----------------------------------------------------------------------- -->
+<div class="tocify-extend-page" data-unique="tocify-extend-page" style="height: 0;"></div>
