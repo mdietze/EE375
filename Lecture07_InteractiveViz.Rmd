@@ -1,0 +1,205 @@
+---
+title: "Interactive Visualization"
+author: "EE375 Lecture 07"
+output:
+  ioslides_presentation:
+    incremental: true
+---
+
+```{r, echo=FALSE, include=FALSE}
+library(plotly)
+library(tidyverse)
+library(animation)
+library(STRbook)
+library(gganimate)
+library(shiny)
+
+data(diamonds,package="ggplot2")
+
+### load met data from previous labs
+met = read.csv("met_hourly.csv")
+met2 = met[sample.int(nrow(met),500),] ## subsample data
+
+## load NOAA data
+data("NOAA_df_1990", package = "STRbook")
+Tmax <- filter(NOAA_df_1990,     # subset the data
+              proc == "Tmax" &   # only max temperature
+              month %in% 7:8 &   # May to September
+              year == 1993)      # year of 1993
+Tmax$t <- Tmax$julian - 728049
+```
+
+## Outline
+
+- Why interactive graphics
+- Making individual plots interactive
+  - Plotly & ggplotly()
+- Making movies
+  - library(animation)
+- Making interactive “apps”
+  - Shiny
+
+## Why interactive?
+- High-dimensional data
+   - e.g. spatio-temporal
+- Identifying structure in data
+   - interactive querying
+- Diagnosing models
+- Aid in exploratory analyses
+- Useful for decision support tools
+
+# Next up: interactive plots
+
+# Making individual plots interactive
+
+## Plotly
+- Plotly.js is a widely used JavaScript library for interactive graphics
+- library(plotly) is an R interface
+ - plot_ly() direct interface
+ - ggplotly() converts ggplot objects
+ - plot_mapbox() and plot_geo() for spatial
+
+```{r}
+library(plotly)
+```
+
+---
+
+```{r}
+plot_ly(diamonds) %>% add_histogram(x = ~cut)
+```
+
+---
+
+```{r}
+plot_ly(diamonds) %>% add_histogram(x = ~cut, color = ~clarity, colors = "Accent")
+```
+
+---
+
+```{r}
+ plotly::plot_ly(met) %>%
+ plotly::add_trace(x = ~AirTemp, y = ~LongWave,type='scatter',mode= 'markers')
+```
+
+## ggplotly
+
+```{r}
+g =  ggplot(met) + aes(x = AirTemp, y = LongWave) +
+ geom_point(colour = "blue") + theme_minimal()
+g
+```
+
+---
+
+```{r}
+ggplotly(g)
+```
+
+---
+
+```{r}
+g =  ggplot(met) + aes(x = AirTemp, y = LongWave) +
+ geom_hex() + theme_minimal()
+ggplotly(g)
+```
+
+## Additional resources
+
+- Interactive web-based data visualization with R, plotly, and shiny by Carson Sievert
+  - https://plotly-r.com/
+- htmlwidgets
+  - http://gallery.htmlwidgets.org/
+  - R libraries that link to other JavaScript interactive libraries
+- flexdashboard
+  - composes multiple htmlwidgets into a dashboard
+- crosstalk
+  - linked brushing across htmlwidgets
+
+# Next up: Animation
+
+# Animation
+
+## Idea
+- use code to draw a series of data visualizations (e.g. maps through time)
+- combine images into movie format (gif, mp4, etc.) with some delay between images
+
+## Example: NOAA met
+
+```{r}
+head(Tmax)
+```
+
+
+## Write function to draw plots
+
+```{r}
+Tmax_t <- function(tau) {                     ## tau = day of year to plot
+    Tmax_sub <- filter(Tmax, t == tau)        # subset data
+    ggplot(Tmax_sub) +
+        geom_point(aes(x = lon,y = lat, colour = z),   # scatter plot with temperature as color
+                   size = 4) +                         # pt. size
+        scale_colour_distiller(palette = "Spectral", guide = "colourbar",   # scale
+                               name = "z", limits = c(40, 110)) +
+        theme_bw() # B&W theme
+}
+```
+
+## Write function to loop over plots
+```{r}
+gen_anim <- function() {
+  lim_t <- range(Tmax$t)            # time range
+   for(t in lim_t[1]:lim_t[2]){  # for each time point
+      plot(Tmax_t(t))            # plot data at this time point
+   }
+}
+```
+
+## Animate
+
+```{r}
+ani.options(interval = 0.2)     # 0.2s interval between frames
+saveHTML(gen_anim(),            # run the main function
+        autoplay = FALSE,      # do not play on load
+        loop = FALSE,          # do not loop
+        verbose = FALSE,       # no verbose
+        outdir = ".",          # save to current dir
+        single.opts = "'controls': ['first', 'previous',
+                                    'play', 'next', 'last',
+                                     'loop', 'speed'],
+                                     'delayMin': 0",
+        htmlfile = "NOAA_anim.html")  # save filename
+```
+
+
+## library(animation)
+
+- **saveGIF**	  - Convert images to a single animation file (typically GIF) using ImageMagick or GraphicsMagick
+- **saveHTML**	- Insert animations into an HTML page
+- **saveLatex**	- Insert animations into a LaTeX document and compile it
+- **saveMovie**	- Convert images to a single animation file (typically GIF) using ImageMagick or GraphicsMagick
+- **saveSWF**	  - Convert images to Flash animations
+- **saveVideo**	- Convert a sequence of images to a video by FFmpeg
+
+Some of these require additional software (e.g. ImageMagick)
+
+Library comes with a lot of demos
+
+## library(gganimate)
+
+```{r}
+a1 <- ggplot(Tmax) + geom_point(aes(x = lon,y = lat, colour = z), size = 4) +   # scatter plot with temperature as color
+    scale_colour_distiller(palette = "Spectral", guide = "colourbar", name = "z", limits = c(40, 110)) +
+    theme_bw() + # B&W theme
+    # gganimate specific bits:
+    transition_time(t) # one image per t
+anim_save("NOAA.gif",a1)
+```
+
+## inline animation
+
+```{r}
+animate(a1,fps=5) ## fps = frames per second = 1/interval
+```
+
+# Next up: R Shiny

@@ -1,0 +1,128 @@
+---
+title: "Shiny: R-based interactive web apps"
+author: "EE375 Lecture 07"
+output:
+  ioslides_presentation:
+    incremental: true
+runtime: shiny
+---
+
+## Reactive programming
+
+- Event driven
+  - Script no longer run once sequentially
+  - Functions re-run when inputs change
+- Code a user interface
+  - "widgets" control **inputs**
+- Code that respond to widgets
+  - return **outputs** that update interface
+- In addition to webpages, Shiny can be embedded in Rmd
+ 
+## https://shiny.rstudio.com/gallery/
+
+- Gallery of examples (with code)
+- Examples of widgets
+
+## App development
+
+- Start with _working_ non-interactive code, default **inputs**
+- Wrap outputs in `render` functions
+  - DataTable, Image, Plot, CachedPlot, Print, Table, Text, UI
+- Create input widget for _one_ thing
+- Incrementally add complexity
+- Check app functions after each step
+  - If things break, easier to debug just the most recent change
+ 
+## Start from working Code
+
+```
+n_breaks = 20
+bw_adjust = 1
+hist(faithful$eruptions, probability = TRUE, breaks = as.numeric(n_breaks),
+    xlab = "Duration (minutes)", main = "Geyser eruption duration")
+lines(density(faithful$eruptions, adjust = bw_adjust), col = "blue")
+```
+
+---
+
+```{r, echo=FALSE}
+n_breaks = 20
+bw_adjust = 1
+hist(faithful$eruptions, probability = TRUE, breaks = as.numeric(n_breaks),
+    xlab = "Duration (minutes)", main = "Geyser eruption duration")
+lines(density(faithful$eruptions, adjust = bw_adjust), col = "blue")
+```
+
+## Wrap outputs
+
+```
+shiny::renderPlot({
+  n_breaks = 20
+  bw_adjust = 1
+  hist(faithful$eruptions, probability = TRUE, breaks = as.numeric(n_breaks),
+       xlab = "Duration (minutes)", main = "Geyser eruption duration")
+  lines(density(faithful$eruptions, adjust = bw_adjust), col = "blue")
+})
+```
+
+## Add an input widget
+
+```
+shiny::inputPanel(
+  shiny::selectInput("breaks", label = "Number of bins:",
+              choices = c(10, 20, 35, 50), selected = 20)
+)
+shiny::renderPlot({
+  bw_adjust = 1
+  hist(faithful$eruptions, probability = TRUE, breaks = as.numeric(input$breaks),
+       xlab = "Duration (minutes)", main = "Geyser eruption duration")
+  lines(density(faithful$eruptions, adjust = bw_adjust), col = "blue")
+})
+```
+
+---
+
+```{r,echo=FALSE}
+shiny::inputPanel(
+  shiny::selectInput("breaks", label = "Number of bins:",
+              choices = c(10, 20, 35, 50), selected = 20)
+)
+shiny::renderPlot({
+  bw_adjust = 1
+  hist(faithful$eruptions, probability = TRUE, breaks = as.numeric(input$breaks),
+       xlab = "Duration (minutes)", main = "Geyser eruption duration")
+  lines(density(faithful$eruptions, adjust = bw_adjust), col = "blue")
+})
+```
+
+## Add complexity incrementally
+
+```
+shiny::inputPanel(
+  shiny::selectInput("n_breaks", label = "Number of bins:",
+              choices = c(10, 20, 35, 50), selected = 20),
+  shiny::sliderInput("bw_adjust", label = "Bandwidth adjustment:",
+              min = 0.1, max = 2, value = 1, step = 0.1)
+)
+shiny::renderPlot({
+  hist(faithful$eruptions, probability = TRUE, breaks = as.numeric(input$n_breaks),
+       xlab = "Duration (minutes)", main = "Geyser eruption duration")
+  lines(density(faithful$eruptions, adjust = input$bw_adjust), col = "blue")
+})
+```
+
+---
+
+```{r,echo=FALSE}
+shiny::inputPanel(
+  shiny::selectInput("n_breaks", label = "Number of bins:",
+              choices = c(10, 20, 35, 50), selected = 20),
+  shiny::sliderInput("bw_adjust", label = "Bandwidth adjustment:",
+              min = 0.1, max = 2, value = 1, step = 0.1)
+)
+shiny::renderPlot({
+  hist(faithful$eruptions, probability = TRUE, breaks = as.numeric(input$n_breaks),
+       xlab = "Duration (minutes)", main = "Geyser eruption duration")
+  lines(density(faithful$eruptions, adjust = input$bw_adjust), col = "blue")
+})
+```
