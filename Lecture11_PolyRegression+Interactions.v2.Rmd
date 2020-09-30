@@ -1,0 +1,409 @@
+Regression: beyond the  basics
+========================================================
+
+* Polynomial Regression
+* Interaction Terms
+* Generalized Linear Models
+
+# Polynomial Regression
+
+For this example we're going to simulate data from a known 'true' model, and then fit this 'pseudodata' statistically to assess how well we do at identifying the 'true' model structure and parameters. This idea of pseudodata simulation is a handy test whenever you are working with complex statistical models to verify that they are working correctly. The ability to fit a model to data can also depend a lot on the sample size (number of data points). As we'll discuss later in the semester, we can also use pseudodata simulations like these to better understand the sample size of data we'll need from our field experiments.
+
+```{r}
+# Simulate observations from "True model"
+beta = c(4,3,2,1)
+sd = 50
+n = 40
+x = runif(n,-5,10)
+y = rnorm(n,beta[1]+beta[2]*x+beta[3]*x^2+beta[4]*x^3,sd)
+plot(x,y)
+xseq=seq(-5,10,length=300)
+xnew = list(x=xseq)
+ytrue = beta[1]+beta[2]*xseq+beta[3]*xseq^2+beta[4]*xseq^3
+lines(xseq,ytrue,col=7,lwd=3)
+```
+
+Armed with our pseudodata, let's now pretend we didn't know the true model. As such, we'd probably start by fitting a simple linear regression:
+
+```{r}
+## linear regression
+f1 = lm(y ~ x)     ## fit model
+plot(x,y)          ## plot data
+y1 = predict(f1,xnew,interval="confidence") ## generate CI for new data
+lines(xseq,y1[,1],lwd=3,col=2)              ## plot CI and median
+lines(xseq,y1[,2],lty=2,col=2)
+lines(xseq,y1[,3],lty=2,col=2)
+lines(xseq,ytrue,col=7,lwd=3)               ## add the known "true" model (wouldn't have this for real data)
+summary(f1)
+```
+
+This data clearly violates the assumptions of the linear model, so let's move on to more complex models, starting first with a quadratic equation. To do so we'll introduce the `I()` function, which forces the code inside it to be run, rather than interpreted by 'lm'. I'd recommend taking a closer look at the help for this function, and for the `formula` function which explains how different arithmetic operators (e.g. +, -, *, ^) are interpreted by lm.
+
+Specifically, the formula `y ~ x + I(x^2)` is interpreted as
+
+$$y \sim N \left( \beta_0 + \beta_1 x + \beta_2 x^2, \sigma^2 \right)$$
+I'll also note that while this model is clearly NONLINEAR WITH RESPECT TO X, when statisticans describe a model as a linear model, they are focused on the estimation of the betas, and the above model is a linear combination of betas. I'll also note that if you defined `z = x^2` then the above model could also be rewritten as `y ~ x + z` which is more clearly not any different from the multiple regression models considered in the previous lectures.
+
+```{r}
+## quadratic regression
+f2 = lm(y ~ x + I(x^2))
+plot(x,y)
+y2 = predict(f2,xnew,interval="confidence")
+lines(xseq,y2[,1],lwd=3,col=3)
+lines(xseq,y2[,2],lty=2,col=3)
+lines(xseq,y2[,3],lty=2,col=3)
+lines(xseq,ytrue,col=7,lwd=3)
+summary(f2)
+plot(f2)
+```
+
+```{r}
+## cubic regression
+f3 = lm(y ~ x + I(x^2) + I(x^3))
+plot(x,y)
+y3 = predict(f3,xnew,interval="confidence")
+lines(xseq,y3[,1],lwd=3,col=4)
+lines(xseq,y3[,2],lty=2,col=4)
+lines(xseq,y3[,3],lty=2,col=4)
+lines(xseq,ytrue,col=7,lwd=3)
+summary(f3)
+plot(f3)
+```
+
+```{r}
+## 4th order polynomial regression
+f4 = lm(y ~ x + I(x^2) + I(x^3) + I(x^4))
+plot(x,y)
+y4 = predict(f4,xnew,interval="confidence")
+lines(xseq,y4[,1],lwd=3,col=5)
+lines(xseq,y4[,2],lty=2,col=5)
+lines(xseq,y4[,3],lty=2,col=5)
+lines(xseq,ytrue,col=7,lwd=3)
+summary(f4)
+```
+
+```{r}
+## Nth order polynomial regression
+fn = lm(y ~ poly(x,30,raw=TRUE))
+plot(x,y)
+yn = predict(fn,xnew,interval="confidence")
+lines(xseq,yn[,1],lwd=3,col=6)
+lines(xseq,yn[,2],lty=2,col=6)
+lines(xseq,yn[,3],lty=2,col=6)
+lines(xseq,ytrue,col=7,lwd=3)
+summary(fn)
+
+model = c(1,2,3,4,30)
+
+aic <- c(
+  AIC(f1),
+  AIC(f2),
+  AIC(f3),
+  AIC(f4),
+  AIC(fn))
+delta_aic = aic-min(aic)
+
+R_square <- c(
+  summary(f1)$r.squared,
+  summary(f2)$r.squared,
+  summary(f3)$r.squared,
+  summary(f4)$r.squared,
+  summary(fn)$r.squared
+)
+
+knitr::kable(cbind(model,R_square,aic,delta_aic))
+
+```
+
+# Interaction terms
+
+```{r}
+## Different Intercepts
+n=20
+Int = seq(0,4,by=2)
+Slope = 0.5
+SD = 0.5
+
+x1 = runif(n,0,10)
+y1 = rnorm(n,Int[1]+Slope*x1,SD)
+w1 = rep(0,n)
+
+x2 = runif(n,0,10)
+y2 = rnorm(n,Int[2]+Slope*x2,SD)
+w2 = rep(3,n)
+
+x3 = runif(n,0,10)
+y3 = rnorm(n,Int[3]+Slope*x3,SD)
+w3 = rep(6,n)
+
+w = c(w1,w2,w3)
+x = c(x1,x2,x3)
+y = c(y1,y2,y3)
+plot(x,y,pch="+",cex=1.5)
+
+plot(w,y,col=w/3+1,pch="+",cex=1.5)
+plot(x,y,col=w/3+1,pch="+",cex=1.5)
+
+i1 = lm(y~x)
+plot(x,y,col=w/3+1,pch="+",cex=1.5)
+abline(i1,col=4)
+summary(i1)
+
+i2 = lm(y~w)
+plot(w,y,col=w/3+1,pch="+",cex=1.5)
+abline(i2,col=4)
+summary(i2)
+
+i3 = lm(y~x+w)
+plot(x,y,col=w/3+1,pch="+",cex=1.5)
+xnew1 = list(x=seq(0,10,length=100),w=rep(0,100))
+ynew1 = predict(i3,xnew1)
+xnew2 = list(x=seq(0,10,length=100),w=rep(3,100))
+ynew2 = predict(i3,xnew2)
+xnew3 = list(x=seq(0,10,length=100),w=rep(6,100))
+ynew3 = predict(i3,xnew3)
+lines(xnew1$x,ynew1)
+lines(xnew2$x,ynew2,col=2)
+lines(xnew3$x,ynew3,col=3)
+summary(i3)
+
+```
+
+The reason this works is that from the perspective of any variable in a multiple regression, you can rewrite the underlying linear model so that all other covariates are modifying the **intercept** of the relationship between the target variable and Y. So looking at X
+
+$$Y = \beta_0 + \beta_1 X + \beta_2 W$$
+this can be rewritten as
+
+$$Y = (\beta_0 + \beta_2 W) + \beta_1 X $$
+$$Y = B0 + \beta_1 X $$
+$$B0 =\beta_0 + \beta_2 W$$
+Which clearly shows that Y is a linear model of X and the intercept in that model is a linear model of W.
+
+We can similarly do this for W as well
+$$Y = (\beta_0 + \beta_1 X) + \beta_2 W $$
+$$Y = A0 + \beta_2 W $$
+$$A0 =\beta_0 + \beta_1 X$$
+Where Y is a linear model of W where the intercept A0 is itself a linear model of W
+
+## Different Slopes
+
+```{r}
+n=20
+Int = 2
+Slope = c(0,0.5,1)
+SD = 0.5
+
+x1 = runif(n,0,10)
+y1 = rnorm(n,Int+Slope[1]*x1,SD)
+w1 = rep(0,n)
+
+x2 = runif(n,0,10)
+y2 = rnorm(n,Int+Slope[2]*x2,SD)
+w2 = rep(3,n)
+
+x3 = runif(n,0,10)
+y3 = rnorm(n,Int+Slope[3]*x3,SD)
+w3 = rep(6,n)
+
+w = c(w1,w2,w3)
+x = c(x1,x2,x3)
+y = c(y1,y2,y3)
+plot(x,y,pch="+",cex=1.5)
+
+plot(w,y,col=w/3+1,pch="+",cex=1.5)
+plot(x,y,col=w/3+1,pch="+",cex=1.5)
+
+s1 = lm(y~x)
+plot(x,y,col=w/3+1,pch="+",cex=1.5)
+abline(s1,col=4)
+summary(s1)
+
+s2 = lm(y~w)
+plot(w,y,col=w/3+1,pch="+",cex=1.5)
+abline(s2,col=4)
+summary(s2)
+
+s3 = lm(y~x+w)
+plot(x,y,col=w/3+1,pch="+",cex=1.5)
+xnew1 = list(x=seq(0,10,length=100),w=rep(0,100))
+ynew1 = predict(s3,xnew1)
+xnew2 = list(x=seq(0,10,length=100),w=rep(3,100))
+ynew2 = predict(s3,xnew2)
+xnew3 = list(x=seq(0,10,length=100),w=rep(6,100))
+ynew3 = predict(s3,xnew3)
+lines(xnew1$x,ynew1)
+lines(xnew2$x,ynew2,col=2)
+lines(xnew3$x,ynew3,col=3)
+summary(s3)
+plot(s3)
+```
+
+In this case, the simple multiple regression model isn't capturing the effect W is having. We can improve on this by adding what's called an **interaction term** between X and W. Like with our polynomial models, you could think of this as creating a new variable $Z = X*W$ and adding it to our multiple regression. The interaction term really is the product of the two variables.
+
+$$Y = \beta_0 + \beta_1 X + \beta_2 W + \beta3 X W$$
+
+
+```{r}
+## with the interaction term
+s4 = lm(y~x+w+x*w)
+plot(x,y,col=w/3+1,pch="+",cex=1.5)
+xnew1 = list(x=seq(0,10,length=100),w=rep(0,100))
+ynew1 = predict(s4,xnew1)
+xnew2 = list(x=seq(0,10,length=100),w=rep(3,100))
+ynew2 = predict(s4,xnew2)
+xnew3 = list(x=seq(0,10,length=100),w=rep(6,100))
+ynew3 = predict(s4,xnew3)
+lines(xnew1$x,ynew1)
+lines(xnew2$x,ynew2,col=2)
+lines(xnew3$x,ynew3,col=3)
+summary(s4)
+plot(s4)
+```
+
+So why does this work and how do we interpret interaction terms?
+
+When we add the interaction term we can rewrite our linear model in terms of X
+
+$$Y = \beta_0 + \beta_1 X + \beta_2 W + \beta3 X W$$
+$$Y = (\beta_0 + \beta_2 W) + X (\beta_1 + \beta_3 W) $$
+$$Y = B0 + B1 X $$
+$$B0 =\beta_0 + \beta_2 W$$
+$$B1 =\beta_1 + \beta_3 W$$
+This shows that from the perspective of X, the interaction term causes the **slope** of the relationship between X and Y to become a function of W. The same can be done from the perspective of W
+
+
+
+
+# Generalized Linear Models
+
+## Logistic Regression
+
+What if your Y data is BOOLEAN (0/1, TRUE/FALSE, YES/NO) ???
+
+```{r}
+# Simulate observations from "True model"
+library(boot)
+beta = c(-2,1)
+n = 80
+x = runif(n,-4,8)
+theta <- inv.logit(beta[1]+beta[2]*x)
+y = rbinom(n,1,theta)
+plot(x,y)
+```
+
+
+Want a model that describes the _probability_ of being 0 vs 1 as a function of (one or more) X.
+
+```{r}
+plot(x,y)
+xseq=seq(-5,10,length=300)
+xnew = list(x=xseq)
+theta.true = inv.logit(beta[1]+beta[2]*xseq)
+lines(xseq,theta.true,col=7,lwd=3)
+```
+
+Linear regression isn't a great choice...
+```{r}
+plot(x,y,ylim=c(-0.25,1.25))
+xseq=seq(-5,10,length=300)
+xnew = list(x=xseq)
+theta.true = inv.logit(beta[1]+beta[2]*xseq)
+lines(xseq,theta.true,col=7,lwd=3)
+
+l1 = lm(y~x)
+y1 = predict(l1,xnew,interval="confidence")
+lines(xseq,y1[,1],lwd=3,col=2)
+lines(xseq,y1[,2],lty=2,col=2)
+lines(xseq,y1[,3],lty=2,col=2)
+lines(xseq,theta.true,col=7,lwd=3)
+summary(l1)
+plot(l1)
+```
+
+Two major changes:
+
+* Y data is no longer Gaussian, but rather follows a BINOMIAL distribution (like a coin flip with some probability p)
+
+* Functional form of the model has to be bound between 0 and 1
+ + Idea: **link function** that translates from linear (+/- Inf) to (0,1)
+ + Most common link function is the logit (log of the odds ratio)
+  
+$logit(p) = log({{p}\over{1-p}})$
+  
+```{r}
+p = seq(0.01,0.99, length=50)
+theta = logit(p)
+plot(theta,p,type='l')
+```
+
+**Logistic Regression** is a linear regression, transformed through the logit, and then fit with a binomial error model. 
+
+Logistic Regression is a particularly common special case of regressions that use a more broad set of non-Gaussian probability distributions and link functions. This approach is referred to as **Generalized Linear Models** (GLM)
+
+## How do we fit GLMs in R?
+
+```{r}
+plot(x,y,ylim=c(-0.25,1.25))
+xseq=seq(-5,10,length=300)
+xnew = list(x=xseq)
+theta.true = inv.logit(beta[1]+beta[2]*xseq)
+lines(xseq,theta.true,col=7,lwd=3)
+
+l2 <- glm(y ~ x, family=binomial(link = "logit"))
+y2 = inv.logit(predict(l2,xnew))
+lines(xseq,y2,lwd=3,col=2)
+lines(xseq,theta.true,col=7,lwd=3)
+summary(l2)
+```
+
+Note that the default predict.glm doesn't have an option for confidence and predictive intervals -- we'll cover how to generate these yourself in the lectures on error propagation.
+
+## Poisson Regression
+
+Another common GLM option is to use the Poisson distribution to model COUNT data
+
+Counts are always non-negative, so need a link function that translates from +/- Inf to (0,Inf). `log` is a common choice
+
+Example:
+```{r}
+beta = c(-1.5,0.4)
+n = 80
+x = runif(n,0,8)
+theta <- exp(beta[1]+beta[2]*x)   ## log(theta) = beta1 + beta2*x
+y = rpois(n,theta)
+plot(x,y)
+```
+
+Linear regression _still_ isn't a great choice...
+```{r}
+plot(x,y)
+xseq=seq(0,10,length=300)
+xnew = list(x=xseq)
+
+l1 = lm(y~x)
+y1 = predict(l1,xnew,interval="confidence")
+lines(xseq,y1[,1],lwd=3,col=2)
+lines(xseq,y1[,2],lty=2,col=2)
+lines(xseq,y1[,3],lty=2,col=2)
+lines(xseq,theta.true,col=7,lwd=3)
+summary(l1)
+plot(l1)
+```
+
+How to fit a Poisson regression
+```{r}
+plot(x,y)
+xseq=seq(0,10,length=300)
+xnew = list(x=xseq)
+theta.true = exp(beta[1]+beta[2]*xseq)
+lines(xseq,theta.true,col=7,lwd=3)
+
+l2 <- glm(y ~ x, family=poisson(link = "log"))
+y2 = exp(predict(l2,xnew))
+lines(xseq,theta.true,col=7,lwd=3)
+lines(xseq,y2,lwd=3,col=2,lty=2)
+summary(l2)
+plot(l2)
+```
+
+

@@ -1,0 +1,54 @@
+---
+title: "Hands On: Model Validation"
+author: "GE375"
+output: html_document
+---
+
+The goal of this activity is to explore some of the graphs and diagnostics that are routinely employed in order to evaluate model performance.
+
+Keeping with the theme of soil fluxes, we will be evaluating the performance of a terrestrial biosphere model against measurements of soil temperature and moisture. The measurements come from two sites in the upper midwest, Willow Creek and Sylvania Wilderness, that are part of the Ameriflux network of towers measuring fluxes of CO2, latent heat, and sensible heat (http://ameriflux.ornl.gov). Soil moisture and temperature for different depths are 'ancillary' data that are available for most sites. 
+
+Begin by loading a library that we'll use for some of our plots, and then the model output and field data
+
+```{r}
+library(plotrix)
+
+## load and look at model structure
+load("Model.Rdata")
+names(m)
+
+## load data
+data <- list()
+data[[1]] <- read.csv("AMF_USWCr_2002_L2_WG_V004.csv",skip=18,na.strings = c("-6999","-9999"))[-1,]
+data[[2]] <- read.csv("AMF_USSyv_2002_L2_WG_V003.csv",skip=18,na.strings = c("-6999","-9999"))[-1,]
+time = data[[1]]$DTIME    ## extract the time column as a useful x-axis for time-series plots
+
+## organize data (d) that match the model (m) output structure 
+d <- list()
+d[[1]] <- data[[1]]$SWC1/100  ## Make sure soil moisture is in the same units as the model
+d[[2]] <- data[[1]]$SWC2/100
+d[[3]] <- data[[2]]$SWC1/100
+d[[4]] <- data[[2]]$SWC2/100
+d[[5]] <- data[[1]]$TS1       ## Soil Temperature
+d[[6]] <- data[[1]]$TS2
+d[[7]] <- data[[2]]$TS1
+d[[8]] <- data[[2]]$TS2
+names(d) = names(m)
+```
+
+
+Task 1.	Make at least one 'sanity check' plot of the model output
+
+Task 2. Make all 8 predicted vs observed plots. Include the 1:1 line as well as a regression line between the model and the data. Store the results of these regressions in a list for later use. I strongly encourage you to NOT cut-and-paste your plotting code 8 times -- this would be a very good use of a loop (and possibly a function). Don't forget to include a legend!
+
+Task 3: Make all 8 plots of the model and data vs time. I'd recommend plotting both as lines not points.
+
+Questions to discuss:
+1. Which variable is the model better at predicting? 
+2. Within each variable does the model do better at one depth vs. the other? At one site vs. the other? 
+3. For each of the two variables are there consistent patterns to the model error (and if so what are they) or is the error random?
+4. Describe one pattern of error in soil moisture
+5. Describe one pattern of error in soil temperature
+6. Generate a hypothesis about what might be driving one of these errors. Make a prediction about how the model would respond if your hypothesis is true.
+7. Propose a "model experiment" to test this hypothesis.
+
