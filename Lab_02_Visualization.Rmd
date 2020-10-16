@@ -446,7 +446,7 @@ plot(time,met$AirTemp,
 
 month = months(met$time)                              ## extract months from dates
 Tbar  = tapply(met$AirTemp,INDEX = month,FUN = mean)  ## calc monthly mean temp
-mbar  = tapply(met$time, INDEX = month, FUN = mean)       ## calc monthly mean date
+mbar  = tapply(met$time,INDEX = month,FUN = mean)         ## calc monthly mean date
 mbar  = as.POSIXct(mbar,origin="1970-01-01 00:00.00 UTC") ## coerce result back to datetime
 
 points(mbar,Tbar,col="red",pch=18,cex=2)              ## add monthly means to plot as solid diamonds (pch=18)
