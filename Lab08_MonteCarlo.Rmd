@@ -1,0 +1,188 @@
+---
+title: "Lab 08 - Uncertainty Propagation"
+author: "EE375"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Objectives
+
+In the previous two labs we first used **Maximum Likelihood** to estimate parameters to the Farquhar, von Caemmerer, and Berry (1980) photosynthesis model [FvCB model], and then we use **Bootstrapping** to estimate the uncertainty in the parameters. We're now going to extend this analysis one step further, using **Monte Carlo** methods to propagate uncertainty into a confidence and predictive interval.  *** ADD BITS ON SENSITIVITY AND POWER ***
+
+## Set up  
+
+The first thing we want to do is to load up the outputs from out previous two analyses. For simplicity
+
+```{r}
+## Load & subset the data
+
+## Define FvCB and lnLike functions
+
+## Fit FvCB's lnLike to data using optim
+
+## Perform nonparameteric bootstrap
+```
+
+### Task 1: Create `newdata`
+
+Similar to when we use `predict` with a lm or glm, when we make predictions using Monte Carlo methods we similarly need to define the set of new X's we want to make predictions for. Here, our goal initial goal is to draw a CI and PI around the curve, so to do that you need a sequence of values along the X-axis
+
+# Monte Carlo Uncertainty Propagation
+
+```{r}
+## Monte Carlo uncertainty analysis
+Nmc = 5000	#number of MC iterations
+Aconf = matrix(NA,Nmc,length(newdata$Ci)) # Storage for predicted means for A; row=iteration, col=X's
+Apred = matrix(NA,Nmc,length(newdata$Ci)) # Storage for predicted A; row=iteration, col=X's
+Tpred = matrix(NA,Nmc,5)                  # Storage for parameters (theta) associated with predictions
+for(i in 1:Nmc){
+    ## sample inputs
+
+    ## calculate (and save) predictions
+
+}
+```
+
+## Task 2: Sample inputs
+
+In this case the inputs to your Monte Carlo uncertainty propagation are samples of your parameters. In your previous lab you used bootstrapping to produce samples of parameters. Indeed, if the number of MC iterations is the same as the number of bootstrap iterations, then you can just set `Tpred = theta.boot`. In this case, we want to think about this in the general case and so you'll want to resample from theta.boot. 
+
+```
+    Tpred[i,] = theta.boot[sample.int(nrow(theta.boot), <insert sample size here>  ), ]
+```
+
+## Task 3: Calculate predictions
+
+This case is almost identical to what we did with the parametric bootstrap, with the only real differences being:
+1. We want to use `newdata` to provide the X's
+2. We want to use the **sample** of parameters rather than the MLE. We need to do this so that we incorporate parameter uncertainty in the predictions.
+
+Furthermore, if we start with our parameteric bootstrap prediction
+```
+    Aboot = rnorm(n,FvCB(theta,Ciboot),theta[5]) ### sample 
+```
+we'll also want to split this into two lines, one where we save the prediction for the mean, the other where we save the predicted pseudodata
+
+```
+   Aconf[i,] = FvCB(<insert new parameters> , <insert new data>) ## predict means
+   Apred[i,] = rnorm(nrow(newdata),Aconf[i,],Tpred[i,5])         ## predict pseudodata
+```
+
+At this point you should be able to assemble and run your Monte Carlo loop
+
+## Task 4: Summarize CI and PI
+
+With the MC run, our next step is to use `apply` to summarize the results in terms of the CI and PI. As an example, the following code calculates a 80% Confidence interval. We want to do the apply BY COLUMN because each column represents a different X value of our newdata sequence that we want to calculate an interval for.
+
+```{r}
+CI = apply(Aconf,2,quantile, c(0.1,0.9))
+```
+
+* Calculate a 95% interval for both the CI and PI
+* Add these lines to the plot you made in Lab 6 Question 5 (data + best fit line). Make sure to make the lines different colors and types and to include a legend
+
+# Monte Carlo Sensitivity Analysis
+
+The next thing we're going to do is to look at how sensitive our predictions are to the different parameters in the model. This sensitivity will change for different values of Ci, so we're going to start by looking at the sensitivity at a specific value
+
+```{r}
+j = findInterval(400,newdata$Ci) ## Find the Ci value closest to 400 ppm
+
+sens_j = as.data.frame(matrix(NA,5,3)) ## create a DF to save results
+colnames(sens_j) = c("slope","linR2","trendR2")
+rownames(sens_j) =  c("Vcmax","K","cp","r","sigma")
+colnames(Tpred) = rownames(sens_j)
+
+for(i in 1:5){  ## loop over parameters
+  
+  ## calculate linear sensitivities
+  fit_ij = lm(Aconf[,j] ~ Tpred[,i]) ## fit a line of the jth prediction to the ith parameter
+  sens_j$slope[i] = coef(fit_ij)[2]  ## extract slope
+  sens_j$linR2[i]    = summary(fit_ij)$r.squared ## extract R squared
+  
+  ## calculate R2 around a trendline  (note: don't worry about being able to reproduce this bit)
+  trend = lowess(Tpred[,i],Aconf[,j])  ## trendline
+  MSE   = mean((trend$y - Aconf[order(Tpred[,i]),j])^2) ## mean square error around trendline
+  sens_j$trendR2[i] = max(1 - MSE/var(Aconf[,j]),0)             
+  
+  ## diagnostic plots
+  plot(Tpred[,i],Aconf[,j],xlab=colnames(Tpred)[i])
+  lines(trend,col="green")
+  abline(fit_ij,col="orange")
+  legend("topleft",legend=c("regression","trendline"),lty=1,lwd=3,col=c("orange","green"))
+}
+
+sens_j
+
+```
+## Task 5: interpreting sensitivity
+
+* Which parameters causes photosynthetic rate to increase? Which cause it to decrease?
+* Are any of the responses nonlinear? If so, which ones and describe the pattern. 
+* Which parameter is photosynthetic rate the most sensitive to in absolute terms? Which the least?
+* In terms of partitioning out the variability in the confidence interval, which parameters have the most impact? Which are not worth worrying about?
+* How much of the variability in the confidence interval is not explained by the first-order effects of each parameter by itself? What accounts for the remaining variability and how might we quantify that effect?
+
+## Task 6: varying sensitivities (Extra Credit)
+
+If we want to look at how the sensitivities change as Ci changes, we can put our sensitivity calculation in a function
+
+```{r}
+
+sens <- function(j){
+  
+  sens_j = as.data.frame(matrix(NA,5,3)) ## create a DF to save results
+  colnames(sens_j) = c("slope","linR2","trendR2")
+  rownames(sens_j) =  c("Vcmax","K","cp","r","sigma")
+  
+  for(i in 1:5){  ## loop over parameters
+  
+  ## calculate linear sensitivities
+  fit_ij = lm(Aconf[,j] ~ Tpred[,i]) ## fit a line of the jth prediction to the ith parameter
+  sens_j$slope[i] = coef(fit_ij)[2]
+  sens_j$linR2[i]    = summary(fit_ij)$r.squared
+  
+  ## calculate R2 around a trendline  (note: don't worry about being able to reproduce this bit)
+  trend = lowess(Tpred[,i],Aconf[,j])  ## trendline
+  MSE   = mean((trend$y - Aconf[order(Tpred[,i]),j])^2) ## mean square error around trendline
+  sens_j$trendR2[i] = max(1 - MSE/var(Aconf[,j]),0)             
+  
+ }
+  
+ return(sens_j)
+}
+```
+
+and then loop over all of our values of Ci
+
+```{r}
+sens_array = array(NA,dim=c(length(newdata$Ci),5,3))
+for(j in 1:length(newdata$Ci)){
+  sens_array[j,,] = as.matrix(sens(j))
+}
+```
+
+and then plot how sensitivity changes with Ci
+
+```{r}
+plot(newdata$Ci, sens_array[,1,1],main=colnames(Tpred)[1],
+     type='l',ylab="slope") ## Vcmax slope
+plot(newdata$Ci, sens_array[,1,2],main=colnames(Tpred)[1],
+     type='l',ylab="R2",ylim=range(sens_array[,1,2:3])) ## Vcmax linear R2
+lines(newdata$Ci,sens_array[,1,3],main=colnames(Tpred)[1],
+      col="green") ## Vcmax trend R2
+```
+
+* Using a loop, plot how the slope and R2 change with Ci for all of the parameters. Describe the trends.
+Note: the MC appears to be noisy at low Ci (< ~150 ppm), so don't over-interpret random wiggles in that range, Indeed, you might want to set the xlim to filter those out.
+
+* The places where models are most sensitive to a parameter are also the places where additional data would provide the most information about the parameter. Based on what you learned from these analyses about which parameters are most important and where they are most sensitive, where would you propose to add new Ci values to the sampling protocol if you wanted to improve model fit and predictions.
+
+
+
+
+
+
