@@ -49,10 +49,14 @@ Consider a different species of dragonfly that grows according to a logistic gro
 
 B1: Plot population size, N, vs time for the first year of the population’s recovery (10%)
 
-B2: Rounding to the nearest whole individual, how many weeks does it take for the population to reach carrying capacity? Hints: 1) This is equivalent to asking when N > 249.5; 2) take a look back at the which function to help find when this threshold is crossed. (10%)
+B2: Rounding to the nearest whole individual, how many weeks does it take for the population to reach carrying capacity? Hints:
+
+1. This is equivalent to asking when N > 249.5; 
+2. take a look back at the which function to help find when this threshold is crossed. (10%)
 
 B3: What is the maximum possible growth rate, dN/dt, for this population? At what population size, N, does maximum growth occur? Include a graph (dN/dt vs. N) that visually demonstrates this. (10%)
 For full credit on the plots, you must:
+
 * fully label x and y axes
 * Illustrate the maximum (ideas: in addition to everything above, check out the functions text, arrows, segments, and abline (especially with v=.. or h=..))
 
