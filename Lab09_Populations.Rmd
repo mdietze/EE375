@@ -1,0 +1,59 @@
+---
+title: "Lab 09 - Population Models"
+author: "EE375"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+For each of the following scenarios, build the necessary model(s) to answer the questions.  Remember, your models should be generalized such that key parameters (such as r, N0, K) are set as variables so they can be varied. Reference the lab and lecture slides for Population Growth Models and any previous topics as necessary. **For the purposes of this lab, when reporting numeric values please round all estimates of population size (N) to 0 decimal places. Note on Submission: Please turn in a single Rmd document, containing all of your graphs and answers to questions, to Blackboard. Questions should be in order and labeled (e.g. A1, A2).**
+
+# Part A:  Exponential Growth
+
+Recall the continuous and discrete models for exponential growth we saw previously in lecture:
+
+Continuous 		$N(t)= N_0 e^{rt}$
+
+Discrete		  $N_{t+1} = R N_t$
+
+We will use these equations to represent growth of a population of _Somatochlora hineana_ (Hine's emerald dragonfly) – an endangered species protected under the U.S. Endangered Species Act (fws.gov). Last spring the Fish & Wildlife Service surveyed sedge meadows in southern Illinois for populations of S. hineana. In a single meadow they found 38 individuals
+
+A1.	Starting at the time of survey (t = 0, i.e. N0 = 38), use the **continuous** exponential equation to model the growth of this population of dragonflies for 10 weeks. Assume a known weekly intrinsic growth rate, r = 0.4 (per week). Include a graph of N vs t in your report (10%)
+
+A2.	Using the same initial conditions, model the growth of this population using the **discrete** exponential equation. Include a graph of N vs t in your report. Hint: recall that R and r are not the same number but are related. (10%)
+
+A3.	What is the doubling time for this population according to both the continuous and discrete models? (10%)
+
+A4. 	Construct an informative graphic to show both population growth curves on one graph. You should construct this graphic with the goal of clearly and simply illustrating the ways in which these models are similar and different. Hint: The functions points and lines are handy for adding to an existing plot. (10%)
+For full credit, you must: 
+* fully label x and y axes (hint: ylab and xlab arguments to plot)
+* use color to convey information (hint: col=”black”)
+* use symbol type to convey information (e.g. lines vs points, different shapes, etc) (hint: pch, lty, lwd could all be useful here)
+* include a legend (hint: type ?legend in the console for all the details on this one)
+
+A5.	In an effort to better understand their projections of S. hineana populations, the FWS wants to conduct a sensitivity analysis of the continuous exponential model's parameters (N0 , r).
+
+* Plot population size (N) at t=10 versus your parameters N0 and r, over a range of values of your choosing.  You should have two graphs (one for each parameter) with at least 5 points on each graph.  Hint: Each analysis could be done with a for loop over different parameter values with the results stored in a parameter x time matrix. You will then only plot the 10th column of that matrix (t=10). (10%) For full credit on the plots, you must:
+  * Fully label x and y axes and 
+  * Choose your axis range (min/max) and scale (linear vs log) strategically, keeping in mind the goals of your sensitivity analysis (hint: as an argument to plot, ylim=c(0,100) sets the y axis range as 0-100. log=”x” makes the x axis log scale.)
+
+*	Explain what these plots tell you about the sensitivity of population size to the model's parameters. You should consider these questions (at a minimum): Is population size more sensitive to one parameter than the other? What is the nature of the relationship (positive, negative, linear, non-linear, etc.) between population size and each parameter? (10%)
+
+* Justify your chosen range of values of r and N0. Explain how the plotting choices you made help you illustrate your answer to part b. (10%)
+
+# Part B:  Logistic Growth
+
+Consider a different species of dragonfly that grows according to a logistic growth function (see your notes from lecture for the discrete-time logistic growth function). The intrinsic growth rate, r, for this species is 0.3 (per week).  You are studying a population in an isolated meadow that has an initial carrying capacity, K, of 250 dragonflies. Assume the population grows from 2 individuals (i.e. N0 =2)
+
+B1: Plot population size, N, vs time for the first year of the population’s recovery (10%)
+
+B2: Rounding to the nearest whole individual, how many weeks does it take for the population to reach carrying capacity? Hints: 1) This is equivalent to asking when N > 249.5; 2) take a look back at the which function to help find when this threshold is crossed. (10%)
+
+B3: What is the maximum possible growth rate, dN/dt, for this population? At what population size, N, does maximum growth occur? Include a graph (dN/dt vs. N) that visually demonstrates this. (10%)
+For full credit on the plots, you must:
+* fully label x and y axes
+* Illustrate the maximum (ideas: in addition to everything above, check out the functions text, arrows, segments, and abline (especially with v=.. or h=..))
+
+Extra Credit: Repeat B1 and B2 assuming r and K both have a standard error of 10% and that their parameter distributions can be well approximated by a Gaussian distribution. For the updated B1 draw the mean and 95% CI as well as your original result without uncertainty. For the updated B2 provide a histogram and calculate the mean and CI. How does accounting for uncertainty uncertainty affect your results?
