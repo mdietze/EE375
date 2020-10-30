@@ -165,7 +165,12 @@ Given what you see in the sensitivity plots and the resulting statistics based o
 * Are any of the responses nonlinear? If so, which ones and describe the pattern. 
 * Which parameter is photosynthetic rate the most sensitive to in absolute terms? Which the least?
 
-* In terms of partitioning out the variability in the confidence interval, which parameters have the most impact? Which are not worth worrying about?
+The final total uncertainty in the confidence interval is the product of the many incoming sources. When we calculate an individual parameter's impact on the final uncertainty, model sensitivity isn't the only key factor. 
+
+* What else do we need to consider when determining which variables will contribute the most to model uncertainty? 
+* Which parameters will have the most impact? Which are not worth worrying about? (You don't need to do calculations, just answer in general terms.)
+
+
 * How much of the variability in the confidence interval is not explained by the first-order effects of each parameter by itself? What accounts for the remaining variability and how might we quantify that effect?
 
 ## Task 6: varying sensitivities (Extra Credit)
