@@ -75,22 +75,22 @@ In this case the inputs to your Monte Carlo uncertainty propagation are samples 
 
 ## Task 3: Calculate predictions
 
-This case is almost identical to what we did with the parametric bootstrap, with the only real differences being:
+This case is almost identical to what we did with the parametric bootstrap, with the key differences being:
 1. We want to use `newdata` to provide the X's
 2. We want to use the **sample** of parameters rather than the MLE. We need to do this so that we incorporate parameter uncertainty in the predictions.
 
-Furthermore, if we start with our parameteric bootstrap prediction
+We can start with the code we wrote for the parametric bootstrap prediction as the basis for the code needed in this lab.
 ```
     Aboot = rnorm(n,FvCB(theta,Ciboot),theta[5]) ### sample 
 ```
-we'll also want to split this into two lines, one where we save the prediction for the mean, the other where we save the predicted pseudodata
+Next we want to split this into two lines: one where we save the prediction for the mean, the other where we save the predicted pseudodata.
 
 ```
    Aconf[i,] = FvCB(<insert new parameters> , <insert new data>) ## predict means
    Apred[i,] = rnorm(nrow(newdata),Aconf[i,],Tpred[i,5])         ## predict pseudodata
 ```
 
-At this point you should be able to assemble and run your Monte Carlo loop
+At this point you should be able to assemble and run your Monte Carlo loop.
 
 ## Task 4: Summarize CI and PI
 
