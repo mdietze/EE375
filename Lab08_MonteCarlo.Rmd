@@ -94,14 +94,16 @@ At this point you should be able to assemble and run your Monte Carlo loop.
 
 ## Task 4: Summarize CI and PI
 
-With the MC run, our next step is to use `apply` to summarize the results in terms of the CI and PI. As an example, the following code calculates a 80% Confidence interval. We want to do the apply BY COLUMN because each column represents a different X value of our newdata sequence that we want to calculate an interval for.
+With the MC simulations completed, our next step is to use `apply` to summarize the results in terms of the CI and PI. As an example, the following code calculates a 80% Confidence interval. We want to do the apply BY COLUMN because each column represents a different X value of the `newdata` sequence that we created. At each point along the sequence we want to calculate both a CI and PI. 
 
 ```{r}
 CI = apply(Aconf,2,quantile, c(0.1,0.9))
 ```
 
 * Calculate a 95% interval for both the CI and PI
-* Add these lines to the plot you made in Lab 6 Question 5 (data + best fit line). Make sure to make the lines different colors and types and to include a legend
+* Add these lines to the plot you made in Lab 6 Question 5.
+  * Now your plot should have the data, a best fit line, the CI and the PI
+  * Make sure to use different colors and/or line types and to include a legend
 
 In addition to calculating intervals, we can look at the full predictive distribution at any point, as well as the distribution of expected values (i.e. means)
 ```{r}
@@ -113,7 +115,7 @@ lines(density(Apred[,j]),col="red",lwd=3)
 legend("topright",legend=c("mean","prediction"),col=1:2,lwd=3)
 ```
 
-* Add density plots near 200 and 600 ppm. Use `abline` to add vertical lines at the 95% CI and PI. Comment on the shape of these distributions and the relative balance of parameter vs residual error at each of the three ppm.
+* Using the provided code, produce density plots near 200 and 600 ppm. Use `abline` to add vertical lines at the 95% CI and PI. Comment on the shape of these distributions and the relative balance of parameter vs residual error at each of the three ppm.
 
 # Monte Carlo Sensitivity Analysis
 
