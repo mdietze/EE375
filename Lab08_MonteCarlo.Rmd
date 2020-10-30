@@ -119,7 +119,7 @@ legend("topright",legend=c("mean","prediction"),col=1:2,lwd=3)
 
 # Monte Carlo Sensitivity Analysis
 
-The next thing we're going to do is to look at how sensitive our predictions are to the different parameters in the model. This sensitivity will change for different values of Ci, so we're going to start by looking at the sensitivity at a specific value
+The next thing we're going to do is to look at how sensitive our predictions are to the different parameters in the model. This sensitivity changes for different values of Ci, so we're going to start by looking at the sensitivity of our predictions at a specific value. First we choose the value of Ci in `newdata` that's closest to 400 ppm.
 
 ```{r}
 j = findInterval(400,newdata$Ci) ## Find the Ci value closest to 400 ppm
@@ -152,6 +152,8 @@ sens_j
 
 ```
 ## Task 5: interpreting sensitivity
+
+The plots we have provided show how the output of the FvCB function (i.e. the prediction of assimilation) changes when we **adjust only ONE parameter at a time**. In some cases changing the value of a parameter by only a small increment can have a dramatic change in the model prediction, while in other cases, you may see little to no response at all. This isn't the first time you've encountered this concept. In lab 6 when you created a shiny app with sliders for each variable, your task was to interactively **adjust the values of each parameters one at a time** and visually assess how it affected the performance of the model until you found a curve that passed through the points. Sometimes changing a variable shifted the curve over, sometimes it changed the shape of the curve. That behavior can be explained by the model's **sensitivity** to the respective parameters. In this lab we are finally quantifying what you were merely observing them. 
 
 * Which parameters causes photosynthetic rate to increase? Which cause it to decrease?
 * Are any of the responses nonlinear? If so, which ones and describe the pattern. 
