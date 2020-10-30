@@ -121,7 +121,8 @@ legend("topright",legend=c("mean","prediction"),col=1:2,lwd=3)
 
 The next thing we're going to do is to look at how sensitive our predictions are to the different parameters in the model. This sensitivity changes for different values of Ci, so we're going to start by looking at the sensitivity of our predictions at a specific value. First we choose the value of Ci in `newdata` that's closest to 400 ppm.
 
-```{r}
+```{r fig.height=12, fig.width=12}
+par(mfrow = c(3, 2))
 j = findInterval(400,newdata$Ci) ## Find the Ci value closest to 400 ppm
 
 sens_j = as.data.frame(matrix(NA,5,3)) ## create a DF to save results
@@ -142,9 +143,12 @@ for(i in 1:5){  ## loop over parameters
   sens_j$trendR2[i] = max(1 - MSE/var(Aconf[,j]),0)             
   
   ## diagnostic plots
-  plot(Tpred[,i],Aconf[,j],xlab=colnames(Tpred)[i])
-  lines(trend,col="green")
-  abline(fit_ij,col="orange")
+  plot(Tpred[,i],Aconf[,j],xlab=colnames(Tpred)[i], 
+       main = sprintf("Changes in Aconf in response to changes in %s", colnames(Tpred)[i]), 
+       cex.lab = 1.75, 
+       cex.main = 1.5)
+  lines(trend,col="green", lwd = 3)
+  abline(fit_ij,col="orange", lwd = 3)
   legend("topleft",legend=c("regression","trendline"),lty=1,lwd=3,col=c("orange","green"))
 }
 
