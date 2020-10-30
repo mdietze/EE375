@@ -159,9 +159,12 @@ sens_j
 
 The plots we have provided show how the output of the FvCB function (i.e. the prediction of assimilation) changes when we **adjust only ONE parameter at a time**. In some cases changing the value of a parameter by only a small increment can have a dramatic change in the model prediction, while in other cases, you may see little to no response at all. This isn't the first time you've encountered this concept. In lab 6 when you created a shiny app with sliders for each variable, your task was to interactively **adjust the values of each parameters one at a time** and visually assess how it affected the performance of the model until you found a curve that passed through the points. Sometimes changing a variable shifted the curve over, sometimes it changed the shape of the curve. That behavior can be explained by the model's **sensitivity** to the respective parameters. In this lab we are finally quantifying what you were merely observing them. 
 
-* Which parameters causes photosynthetic rate to increase? Which cause it to decrease?
+Given what you see in the sensitivity plots and the resulting statistics based on the regression and trend lines calculated for each plot, answer the following questions:
+
+* Which parameters have a positive relationship with photosynthetic rate? Which have a negative relationship? Do all the variables show a clear relationship with photosynthetic rate?
 * Are any of the responses nonlinear? If so, which ones and describe the pattern. 
 * Which parameter is photosynthetic rate the most sensitive to in absolute terms? Which the least?
+
 * In terms of partitioning out the variability in the confidence interval, which parameters have the most impact? Which are not worth worrying about?
 * How much of the variability in the confidence interval is not explained by the first-order effects of each parameter by itself? What accounts for the remaining variability and how might we quantify that effect?
 
