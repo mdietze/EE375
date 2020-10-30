@@ -29,7 +29,7 @@ K         | $K_M$      | half-saturation
 
 * In lab 6 we used **Maximum Likelihood** to estimate parameters the model.
 * In lab 7 we used **Bootstrapping** to estimate the uncertainty in the parameters.
-* **In lab 8** we're going to extend this analysis one step further, and use the model to make predictions. Using **Monte Carlo** methods, we will propagate uncertainty into a confidence and predictive interval.  
+* **In lab 8** we're going to extend this analysis one step further, and use the model to make predictions. Using **Monte Carlo** methods, we will propagate uncertainty into a confidence and predictive interval. We will learn about model sensitivity to adjusting parameter values. 
 
 ## Set up  
 
@@ -47,7 +47,7 @@ The first thing we want to do is to load up the outputs from out previous two an
 
 ### Task 1: Create `newdata`
 
-Similar to when we use `predict` with a lm or glm, when we make predictions using Monte Carlo methods we similarly need to define the set of new X's we want to make predictions for. Here, our goal initial goal is to draw a CI and PI around the curve, so to do that you need a sequence of values along the X-axis
+Our first goal is to draw a CI and PI around the model prediction curve. Similar to when we use `predict` with a lm or glm, when we make predictions using Monte Carlo methods we need to define the set of new X's we want to make predictions for, so we will need to define `newdata` as sequence of values along the X-axis.
 
 # Monte Carlo Uncertainty Propagation
 
