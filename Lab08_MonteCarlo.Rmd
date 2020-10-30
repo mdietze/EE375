@@ -10,7 +10,26 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Objectives
 
-In the previous two labs we first used **Maximum Likelihood** to estimate parameters to the Farquhar, von Caemmerer, and Berry (1980) photosynthesis model [FvCB model], and then we use **Bootstrapping** to estimate the uncertainty in the parameters. We're now going to extend this analysis one step further, using **Monte Carlo** methods to propagate uncertainty into a confidence and predictive interval.  *** ADD BITS ON SENSITIVITY AND POWER ***
+In this lab we will revisit the Farquhar, von Caemmerer, and Berry (1980) photosynthesis model [FvCB model]. 
+
+$$A^{(m)} = V_{cmax} \frac{C_i - \Gamma}{C_i+ K_M} - r$$
+
+Table 1: FvCB model parameters in the statistical code, their symbols in equations, and definitions
+
+Parameter | Symbol     | Definition
+----------|------------|-----------
+cp        | $\Gamma$   | CO2 compensation point
+Vcmax     | $V_{cmax}$ | maximum Rubisco capacity
+r         | $R_d$      | leaf respiration
+sigma     | $\sigma$   | residual error
+Ci        | $C_i$      | internal CO2 concentration
+K         | $K_M$      | half-saturation
+
+<!-- I added the model in again just for consistency though I had wanted to add units -->
+
+* In lab 6 we used **Maximum Likelihood** to estimate parameters the model.
+* In lab 7 we used **Bootstrapping** to estimate the uncertainty in the parameters.
+* **In lab 8** we're going to extend this analysis one step further, and use the model to make predictions. Using **Monte Carlo** methods, we will propagate uncertainty into a confidence and predictive interval.  
 
 ## Set up  
 
