@@ -1,0 +1,166 @@
+---
+title: 'Lab 10: Harvest Models'
+runtime: shiny
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(shiny)
+```
+
+There is a new Gulf of Maine fishery opening up for the very first time. Although the fish species in question (Lotka volterra) has been known to science for a while, the technology to catch it has only recently become available. Given the interest in this new fishery and technology, NOAA estimates that this upcoming year will see an unprecedented surge of fishing effort for L. volterra. Your job is to determine the best way to manage the Gulf of Maine L. volterra fishery.
+Scientists have been studying L. volterra in the lab for many years, so they are confident that this species grows according to a simple logistic function with an intrinsic growth rate (r) of 0.6 fish per fish per year. Since no fishing has taken place, it is assumed that the current stock of 3,200,000 tonnes in the Gulf of Maine is the carrying capacity.
+
+To explore management options we're going to create a decision support tool centered on a set of interactive visualizations using an R technology called Shiny.  To learn more about creating interactive documents in Shiny, see [here](http://rmarkdown.rstudio.com/authoring_shiny.html) and [here] (https://shiny.rstudio.com/articles/interactive-docs.html). 
+
+When completing this lab, make sure to reference the instructions and sequence of steps from Lab 3 -- in particular, **make sure you can get a graphic to work non-interactively before you add Shiny** and **add complexity one step at a time (and Knit in between) so if something breaks it's clear where the error is**.
+
+**LIKE LAB 3, WE'RE GOING TO INCREMENTALLY ADD COMPLEXITY TO OUR APP**. We are NOT going to make multiple copies of the app.
+
+## A. Sustainable yield: Shiny basics
+
+First, let's begin by considering the population without harvest. This code is directly analogous to the logistic growth model from Part B of Lab 09, but here we'll learn how to make the plots interactive in Shiny.
+
+```{r, echo=FALSE}
+  input = list(nt = 20, r = 0.6, K = 3200000, N0 = 3200000)  ## defaults used for testing
+                                                             ## comment out this line once connected to Shiny
+
+  par(mfrow=c(1,2))  ## set up a panel plot with 1 row and 2 columns
+  options(scipen = 999)
+  
+  ###################
+  ## Time series plot
+  
+  nt = input$nt
+  K = input$K
+  r = input$r
+  N = rep(input$N0,nt)  ## storage 
+  
+  for(t in 1:(nt-1)){
+    N[t+1] = max(0,N[t] + r*N[t]*(1-N[t]/K))  ## the max here is used to ensure population numbers are never negative
+  }
+  plot(N,xlab="time",ylab="tonnes",type='l',
+       main="L. volterra fish stock projection")
+  
+  ####################
+  ## Growth curve plot
+  
+  Nt = seq(0,input$K*1.1,length=1000) ## seqence of N values over which we'll calculate growth
+  dN = input$r*Nt*(1-Nt/K)            ## Growth curve (dN/dt)
+  
+  plot(Nt,dN,xlab="N",ylab = "dN/dt",type='l')
+  abline(h=0,lty=2,col="orange",lwd=2)    ## draw the equilibrium line (horizonal line at 0)
+  lines(N,r*N*(1-N/K),type="b",col="purple")  ## add the time-series population dynamics
+  
+  legend("topleft",
+         legend=c("yield curve","equilib.","time series"),
+         lwd=3,
+         col=c(1,"orange","purple"), cex=0.7)
+```
+
+Second, embed this code in a renderPlot
+
+```
+renderPlot({
+   <<plotting code goes here>>
+ },
+ height=600) ## set the vertical dimension on the size of the plot
+
+```
+As a reminder, R plots are made interactive by wrapping them in the Shiny `renderPlot` function. Indeed, we can use `{` and `}` to pass a whole chunk of code into the function, allowing us to not just make our plot interactive but also the model -- any time one of the inputs is changed, it will rerun the model and update the plot. Information will be passed from the `inputPanel` (see next step) to `renderPlot` using the variable `input`. For example, if we want to see what value `K` is set to in its slider, that will be passed as `input$K`. Here we'll actually make two plots, one a time-series plot of our modeled population through time, and the second showing the population growth curve
+
+Third, let's consider the inputs into the logistic model: r, K, and N0. To make the graphs interactive we'll want to turn these into slider bars, which we can do using the `sliderInput` function. This function has a number of required arguments: 
+
+* inputId = name of variable you want to control (in quotes)
+* label = text displayed on the slider
+* min = lower end of the slider
+* max = upper end of the slider
+* value = initial default
+* step = how much the 
+
+We'll also use a similar function, `numericInput` to set `nt`, the number of time steps we're running the model. Finally, to display these controls in Shiny we pass them into the function `inputPanel`.
+
+```
+inputPanel(
+  sliderInput("r", label = "Growth rate (r):",
+              min = 0.1, max = 3, value = 0.6, step = 0.1),
+  sliderInput("K", label = "Carrying Capacity (K, tonnes):",
+              min = 1000000, max = 5000000, value = 3200000, step = 100000),
+  sliderInput("N0", label = "Initial Population Size (N0):",
+              min = 0, max = 5000000, value = 3200000, step = 100000),
+  numericInput("nt", "number of time steps:", 20,
+              min = 0, max = 500)
+)
+```
+Once you've added your inputPanel make sure to comment out the default `input` list at the top of the `renderPlot` 
+
+
+Task A1: Use `ablines` to add horizontal (h=) and vertical (v=) lines to the second panel showing the maximum sustainable yield (MSY) and the stock levels at MSY, respectively. Don't forget to add these lines to the legend. Make sure these values are _calculated_ from r and K, not hard-coded, since r and K will change interactively 
+
+Task A2: Explain how changes to r and K change the MSY and stock at the MSY
+
+## B. Fixed effort
+
+Under a fixed-effort system, the total L. volterra harvest would be limited to a certain percentage of the total stock each year.
+
+$$H_t = E \cdot N_t$$
+
+Building on the Shiny app from part A:
+
+1. Add a new slider for Harvest Effort (E). Harvest can only go between 0 and 1 and set the default to 0.18 (i.e. 18%). 
+
+2. In the first panel, add harvest to the population time-series model
+
+3. In the second panel, change the equilibrium line to be fixed effort harvest line. Hint: continue to use `abline`, but use it to set the intercept (0) and the slope (E)
+
+Task B1. Estimate, by looking at your plot, the harvest (tonnes/year) and stock levels (tonnes) at equilibrium for a fishery with 18% fixed effort limit. Extra Credit: Calculate these equilibrium harvest and stock values explicitly and have your app report the numbers.
+
+Task B2. Approximately what Effort is required to hit the maximum sustainable yield
+
+
+##  C. Fixing effort with license limits. 
+
+Under a license limit system, the fishing effort in the Gulf of Maine would be regulated by issuing a certain number of licenses. The new L. volterra fishing technology results in a “catchability” parameter ($\alpha$) of 0.0001 per vessel per year. Catchability is the same for all fishing vessels, so the total harvest (H) depends on $\alpha$ and the number of vessels (V) and the current stock
+(N):
+
+$$ H_t = \alpha \cdot V \cdot N_t $$
+Building on the Shiny app from part B:
+
+* Add a numericInput catchability (default = 0.0001) and a slider for number of vessels (default = 500). Comment out your slider for Harvest Effort (E), which is no longer an input (but leave the code so part B can be graded)
+
+* In the first panel, update your harvest model
+
+* In the second panel, update your equilibrium line
+
+* Add a third panel that contains an effort-yield curve and includes a vertical line on the graph indicated the current number of vessels (V). To draw the effort-yield curve start by calculating E for the **same sequence** of stock levels (Nt) you use in panel 2 to calculate growth:
+
+$$ E = { r \over \alpha} \left( 1 - {N \over K}  \right) $$
+
+Next, plot the growth (dN) from panel 2 vs effort. Hint: Change `par(mfrow=c(1,2))` to `par(mfrow=c(2,2))` to make a 2 x 2 panel of plots. You probably also want to increase the height in renderPlot.
+
+Task C1: What happens in each of the three panels as you increase the number of vessels (e.g. 500, 1000, 2000, and 5000 licensed vessels)?
+
+Task C2. Estimate, by looking at your plot, how many tonnes of fish are harvested from the Gulf of Maine when there are 1000 vessels and how many are harvested with there are 5000 vessels. What is the per-vessel harvest in each case?
+
+Task C3. What number of vessels results in MSY?
+
+Task C4: If the introduction of an improved sonar system increases vessel efficiency (i.e. catchability) by 30% how does this change the equilibrium? As the manager of this fishery, how much do you need to reduce the number of vessel licenses to return the fishery to the maximum sustainable yield?
+
+
+## D. Market Forces
+
+In addition to license regulations imposed by the government, the fishery will be subject to market forces: the costs of running a fishing boat and the sale price of L. volterra. Similar fisheries elsewhere in the world suggest that the average market price will be `$2/kg` and the average cost incurred by each fishing vessel will be `$300k per year`.
+
+Building on your Shiny app from part C:
+
+* Add sliders for the profits per kg (P) and costs per vessel (c), setting the defaults to the means mentioned above.
+
+* Add a fourth panel that calculates and plots the total revenue, the total costs, and the total profit across the levels of effort (i.e. number of vessels) in problem C3. As with panel 3, include a vertical line indicating current effort. Also include a legend. Hint: pay careful attention to the **units** on profit and yield 
+
+Task D1. Setting all other inputs to their default parameters, what is the optimal level of effort (number of vessels) to maximize economic yield (MEY) for the fishery? What is the total profit at that effort level? What is the per-vessel profit at that effort level? What is the total harvest at MEY? How does this compare to the MSY? 
+
+Task D2. If the government offers a $0.50/kg subsidy on the price of the fish, what will happen to the optimal level of effort? What will the total and per-vessel profit be with this level of effort?
+
+Task D3. If habitat degradation reduces carrying capacity by 50%, what will happen to the optimal level of effort? What will the total and per-vessel profit be with this level of effort?
+
