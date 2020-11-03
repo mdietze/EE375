@@ -39,7 +39,39 @@ names(d) = names(m)
 
 Task 1.	Make at least one 'sanity check' plot of the model output
 
+```{r}
+
+plot(x=time, y=m$`WCr SWC d1`, type = "l")
+lines(x=time, y=d$`WCr SWC d1`, col ="green")
+
+```
+
+
+
 Task 2. Make all 8 predicted vs observed plots. Include the 1:1 line as well as a regression line between the model and the data. Store the results of these regressions in a list for later use. I strongly encourage you to NOT cut-and-paste your plotting code 8 times -- this would be a very good use of a loop (and possibly a function). Don't forget to include a legend!
+
+```{r}
+plot(d[[1]], m[[1]])
+abline(0,1, col = "red", lwd = 3)
+fit <- lm(m[[1]]~d[[1]])
+abline(fit, col = "blue", lwd = 3)
+```
+
+```{r}
+plot_vars <- names(d)
+n_vars <- length(plot_vars)
+
+fit_list <- list()
+
+for(i in 1:n_vars){
+  plot(d[[i]], m[[i]], main = sprintf("Plot of %s  with units %s", plot_vars[i], units[i]))
+  abline(0,1, col = "red", lwd = 3)
+  fit_list[[i]] <- lm(m[[i]]~d[[i]])
+  abline(fit, col = "blue", lwd = 3)
+}
+
+```
+
 
 Task 3: Make all 8 plots of the model and data vs time. I'd recommend plotting both as lines not points.
 
