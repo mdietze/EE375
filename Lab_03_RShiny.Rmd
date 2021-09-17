@@ -10,32 +10,6 @@ output:
     toc_collapsed: false
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(shiny)   ## install these two packages in the Packages window (one time)
-library(plotly)
-library(tidyverse)
-```
-
-```{r, echo=FALSE}
-### load met data from previous labs
-met = read.csv("met_hourly.csv")
-met = met[sample.int(nrow(met),500),] ## subsample data
-```
-
-```{r,echo=FALSE}
-  ## Draw Plot (code from Lab 2)
-  plot(met$AirTemp, met$LongWave,
-     cex = 0.5,      ## decrease the symbol size 50%
-     col = "purple", ## change the point color
-     pch = "+",      ## change the point symbol
-     xlab = "Air Temperature (Celsius)",  ## label the x-axis with name and units
-     ylab = "Longwave Radiation (Watts)", ## label the y-axis with name and units
-     cex.lab = 1.3,			# increase the axis label font size by 30%
-     main = "2013 weather data, Lake Sunapee, NH", # title
-     cex.main = 1.5			# increase title font size 50%
-     )
-```
 
 # Objectives
 
