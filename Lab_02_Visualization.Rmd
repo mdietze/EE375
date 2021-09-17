@@ -34,8 +34,8 @@ Now that your environment is clean, we will load in the data.
 We'll be using the same data that we used in Lab 1. However, it is recommended that you copy the data file in to the same folder as Lab 2. Then we can run the code:
 
 ```{r}
-dat = read.table("Lab1_frogs.txt",header=TRUE)
-met = read.csv("met_hourly.csv")
+dat = read.table("/projectnb/dietzelab/mccabete/EE375/Lab1_frogs.txt",header=TRUE)
+met = read.csv("/projectnb/dietzelab/mccabete/EE375/met_hourly.csv")
 met = met[-(8065:8088),]  ## remove the one day in the file that comes from 2014
 ```
 
