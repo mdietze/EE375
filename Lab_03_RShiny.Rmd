@@ -41,7 +41,7 @@ Start of R chunk:
   library(plotly)
   library(tidyverse)
  
-  ## The code for reading in "met" 
+  ## load met data from previous labs
  
   
   ## inputPanel code
@@ -88,11 +88,16 @@ into your console.
 We're going to start with only a small amount of code and have you develop more of the application yourself. Specifically, the code below starts by loading up the met data we've used the last two labs and repeating the (non-interactive) plot of air temperature versus long wave (thermal) radiation. The only difference is that we've thinned the data a bit to make the graphic render more quickly. 
 
 ```{r, echo=FALSE, message=FALSE}
-### load met data from previous labs
+## The code to load up required packages ()
+library(shiny)   ## install these two packages in the Packages window (one time)
+library(plotly)
+library(tidyverse)
+
+## load met data from previous labs
 met = read.csv("met_hourly.csv")
 met = met[sample.int(nrow(met),500),] ## subsample data
 
-## Draw Plot (code from Lab 2)
+## Static Plot (code from Lab 2)
   plot(met$AirTemp, met$LongWave,
        cex = 0.5,      ## decrease the symbol size 50%
        col = "purple", ## change the point color

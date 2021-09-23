@@ -18,7 +18,7 @@ Begin by opening the “World_Development_Indicators” Excel file. The “Data�
 
 1. Export the “Data” sheet of the Excel file to a .csv file (do this in Excel). When you export the file from Excel, make sure you name it “World_Development_Indicators.csv” so that I can knit your code when grading.
 
-2. Load the file into RStudio using the read.csv function in R.  Make sure to use the correct arguments in the read.csv call so that variable names are preserved and **missing values are read correctly** (hint: look back at the help for read.csv to understand how to set what character strings are converted to NA)!
+2. Load the file into RStudio using the read.csv function in R.  Make sure to use the correct arguments in the read.csv call so that variable names are preserved and **missing values are read correctly** (hint: look back at the help for read.csv to understand how to set what character strings are converted to NA)! (Show code)
 
 # Step 2: Hypotheses generation
 
@@ -28,12 +28,12 @@ Begin by opening the “World_Development_Indicators” Excel file. The “Data�
 
 At this stage you'll want to look at univariate scatter plots and correlations between your explanatory variables and response variable.
 
-4. Produce a series of *scatter plots* for each of your explanatory variables (x) versus per capita CO2 emissions (y). Do any of your response variables appear to be non-linear? 
-5. Generate a *table of correlations* between your candidate explanatory variables and per capita CO2 emissions. Are the strengths and directions of these correlations consistent with your hypotheses?
+4. Show the code to produce a series of *scatter plots* for each of your explanatory variables (x) versus per capita CO2 emissions (y). In words, describe the relationships you see. Do any of your response variables appear to be non-linear? 
+5. Show your code to generate a *table of correlations* between your candidate explanatory variables and per capita CO2 emissions. Are the strengths and directions of these correlations consistent with your hypotheses?
 
 # Step 4: Univariate analyses
 
-6. _For each of your explanatory variables_, **fit a linear regression** of that variable versus per capita CO2 emissions. Report the full table of regression statistics for each model. You should have at least 6 regression tables since you have at least 6 proposed variables.
-7. Update your **scatter plots with regression lines** for each candidate variable.
+6. _For each of your explanatory variables_, in R **fit a linear regression** of that variable versus per capita CO2 emissions. Report the full table of regression statistics for each model. You should have at least 6 regression tables since you have at least 6 proposed variables.
+7. Show the code that updates your **scatter plots with regression lines** for each candidate variable.
 8. Were there any **variables that you would eliminate** because they were not significantly correlated with per capita CO2 emissions? 
 9. **What univariate model** would form the starting point for testing multivariate models and why?
