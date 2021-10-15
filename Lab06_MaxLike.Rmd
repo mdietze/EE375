@@ -83,7 +83,7 @@ Ao = Ao[ord]
 
 ### Question 1
 
-Make a plot of $A^{(o)}$ as a function of $C_i$
+Make a plot of $A^{(o)}$ as a function of $C_i$ ($A^{(o)}$ on Y axis and $C_i$ on x axis). 
 
 ## FvCB model
 
@@ -148,7 +148,7 @@ Repeat your plot of the observed data, but this time add lines for the best fit 
 
 ### Question 6
 
-Generate a predicted vs observed plot and include a 1:1 line. Also include the diagnostic regression line between the predicted and observed and save the output of this _lm_ to the variable 'bias.fit'. Make sure to include a legend indicating which line is which.
+Generate a predicted vs observed plot and include a 1:1 line (a plot that includes a line with an intercept of 0 and a slope of 1). Also include the diagnostic regression line between the predicted and observed and save the output of this _lm_ to the variable 'bias.fit'. Make sure to include a legend indicating which line is which.
 
 Overall, how did the model perform?
 
