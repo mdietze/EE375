@@ -39,22 +39,24 @@ The basic steps of the non-parametric bootstrap are to:
 ```{r}
 nboot = 2000
 theta.boot = matrix(NA,nboot,5)
+
 for(i in 1:nboot){
-  samp <- sample(1:length(Ci),length(Ci),replace=TRUE) ### sample 
-  out <- suppressWarnings(optim(fit$par,lnLike,Ao=Ao[samp],Ci=Ci[samp])) ### fit sample 
+  samp <- sample(1:length(Ci),length(Ci),replace=TRUE) ### generate sample 
+  out <- suppressWarnings(optim(fit$par,lnLike,Ao=Ao[samp],Ci=Ci[samp])) ### recalculate statistics
   theta.boot[i,] <- out$par  ## save results
-  if(i%%100 == 0) print(i) ## counter. Comment out for knitting
+  if(i%%100 == 0) print(i) ## counter. Counter lets you know how many times the for loop ran. Comment out for knitting
 }
+
 colnames(theta.boot) = c("Vcmax","K","cp","r","sigma")  
 ```
 
 ### Task 2: Confidence Intervals
 
-For each column in theta.boot, calculate a 95% Confidence interval. Do this by _applying_ the function _quantile_ to each column. _quantile_ is a basic summary statistic function, like mean, median, and var, except that it returns the specific quantiles you ask for in a data set. For example, quantile(x,0.5) would return the 50% (median) quantile of x. In this case you'll want to use the 0.025 and 0.975 quantiles in order to exclude the 2.5% most extreme values on each side of the distribution and keep the inner 95%.
+For each column in theta.boot, calculate a 95% Confidence interval. Do this by _applying_ the function _quantile_ to each column in theta.boot. _quantile_ is a  summary statistic function, like mean, median, and var, except that it returns the specific quantiles you ask for in a data set. For example, quantile(x,0.5) would return the 50% (median) quantile of x. In this case you'll want to use the 0.025 and 0.975 quantiles in order to exclude the 2.5% most extreme values on each side of the distribution and keep the inner 95%.
 
 ### Task 3: Histograms
 
-Plot histograms for each variable. Use the _abline_ function abline to add vertical lines for the Maximum Likelihood Estimate (MLE) and the Confidence Interval.
+Plot histograms for each parameter: Vcmax, K, cp, r, and sigma. Use the _abline_ function to add vertical lines for the Maximum Likelihood Estimate (MLE) and the Confidence Interval (CI).
 
 Based on the CI, which parameters are not significantly different from 0?
 
@@ -77,12 +79,12 @@ In lecture we learned that there were two alternatives for how to conduct the bo
 
 ### Task 6: Generate Parameteric Bootstrap
 
-Starting from the code for the non-parametric bootstrap (just above Task 2), modify this code to perform the parametric bootstrap. To do this you will have to change the 'sample' step into two steps
+Starting from the code for the non-parametric bootstrap (code from above Task 2), modify this code to perform the parametric bootstrap. To do this you will have to change the 'generate sample' step into two steps
 
 1. Draw a sample of input variables (in this case Ci) that is the _same size_ as the original data. I'd recommend drawing from a uniform distribution (_dunif_) over the range of Ci (e.g. 0 to 700).
 2. Draw a sample of the output variable (in this case A). To do this you will need to run the model, FvCB, given the input (Ci) and the _best fit_ parameters (MLE estimates). You also need to include a residual error by simulating errors from the Normal distribution, again using the MLE estimate of the standard deviation, sigma, as the standard deviation in the Normal.
 
-After completing these steps you will then have two simulated data sets (e.g. Ci.boot and A.boot) that you can then plug into optim. The rest of the bootstrap is exactly the same.
+After completing these steps you will then have two simulated data sets (e.g. Ci.boot and A.boot) that you can then plug into optim at the 'recalculate statistics' step. The rest of the bootstrap is exactly the same.
 
 ### Task 7: Parameteric Bootstrap Statistics
 
