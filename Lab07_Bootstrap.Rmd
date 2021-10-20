@@ -71,7 +71,7 @@ Parameter estimates from the same model are frequently correlated with one anoth
 
 The two ways that we assess parameter correlations are exactly the same as what we did when we assessed colinearity: we calculate the correlation matrix using _cor_ and we visually assess the correlations using scatterplots (e.g. _pairs_). Generate these plots and statistics and report which parameters are highly correlated with one another.
 
-** Before proceeding to the next step, save the results so far (e.g. theta.boot) so you don't overwrite them in the next section. You will be asked to compare these results to those below**
+** Before proceeding to the next step, save the results so far (e.g. save theta.boot as theta.boot.non.parametric) so you don't overwrite them in the next section. You will be asked to compare these results to those below**
 
 ## Parameteric Bootstrap
 
@@ -79,16 +79,16 @@ In lecture we learned that there were two alternatives for how to conduct the bo
 
 ### Task 6: Generate Parameteric Bootstrap
 
-Starting from the code for the non-parametric bootstrap (code from above Task 2), modify this code to perform the parametric bootstrap. To do this you will have to change the 'generate sample' step into two steps
+Starting from the code for the non-parametric bootstrap (code from above Task 2), modify this code to perform the parametric bootstrap. To do this you will have to change the 'generate sample' step into two steps, one to generate the Ci sample, and one to generate the A sample. 
 
-1. Draw a sample of input variables (in this case Ci) that is the _same size_ as the original data. I'd recommend drawing from a uniform distribution (_dunif_) over the range of Ci (e.g. 0 to 700).
-2. Draw a sample of the output variable (in this case A). To do this you will need to run the model, FvCB, given the input (Ci) and the _best fit_ parameters (MLE estimates). You also need to include a residual error by simulating errors from the Normal distribution, again using the MLE estimate of the standard deviation, sigma, as the standard deviation in the Normal.
+1. Draw a sample of input variables (in this case Ci) that is the _same size_ as the original data. I'd recommend drawing from a uniform distribution (_runif_) over the range of Ci (e.g. 0 to 700).
+2. Draw a sample of the output variable (in this case A). To do this you will need to run the model, FvCB, given the input (Ci) and the orignial _best fit_ parameters (MLE estimates). You also need to include a residual error by simulating errors from the Normal distribution (_rnorm_), again using the MLE estimate of the standard deviation, sigma, as the standard deviation in the Normal.
 
 After completing these steps you will then have two simulated data sets (e.g. Ci.boot and A.boot) that you can then plug into optim at the 'recalculate statistics' step. The rest of the bootstrap is exactly the same.
 
 ### Task 7: Parameteric Bootstrap Statistics
 
-Repeat Tasks 2-5 for the Parametric Bootstrap outputs
+Repeat Tasks 2-5 for the Parametric Bootstrap outputs. 
 
 ### Task 8: Comparison
 
