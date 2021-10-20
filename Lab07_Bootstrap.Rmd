@@ -6,18 +6,18 @@ output: html_document
 
 In the previous lab we use Maximum Likelihood to estimate parameters to the Farquhar, von Caemmerer, and Berry (1980) photosynthesis model [FvCB model] using leaf-level data on Aspen collected at the Niwot Ridge LTER site in Colorado. Today we're going to build on that example by looking at ways to estimate the uncertainty in the parameters.
 
-### Task 1: Load the data, model, and MLE From Lab 10
+### Task 1: Load the data, model, and Maximum Likelihood Estimation (MLE) From Lab 6
 
-The first step in today's analysis is just to reload the results from Lab 10. To complete today's lab you'll need to:
+The first step in today's analysis is to reload the results from Lab 6. To complete today's lab you'll need to:
 
-* Reload & subset the data
+* Reload the data
 * Load the FvCB and lnLike functions
 * Rerun the fit.  
 
-You don't need to reproduce any of the other analyses and figures we did in Lab 10. Please cut-and-paste this code below so that this lab will knit successfully on its own.
+You don't need to reproduce any of the other analyses and figures we did in Lab 6. Please cut-and-paste this code below so that this lab will knit successfully on its own.
 
 ```{r}
-## Load & subset the data
+## Load the data
 
 ## Define FvCB and lnLike functions
 
