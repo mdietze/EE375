@@ -10,14 +10,32 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Objectives
 
-In the previous two labs we first used **Maximum Likelihood** to estimate parameters to the Farquhar, von Caemmerer, and Berry (1980) photosynthesis model [FvCB model], and then we use **Bootstrapping** to estimate the uncertainty in the parameters. We're now going to extend this analysis one step further, using **Monte Carlo** methods to propagate uncertainty into a confidence and predictive interval.  *** ADD BITS ON SENSITIVITY AND POWER ***
+In this lab we will revisit the Farquhar, von Caemmerer, and Berry (1980) photosynthesis model [FvCB model]. 
+
+$$A^{(m)} = V_{cmax} \frac{C_i - \Gamma}{C_i+ K_M} - r$$
+
+Table 1: FvCB model parameters in the statistical code, their symbols in equations, and definitions
+
+Parameter | Symbol     | Definition
+----------|------------|-----------
+cp        | $\Gamma$   | CO2 compensation point
+Vcmax     | $V_{cmax}$ | maximum Rubisco capacity
+r         | $R_d$      | leaf respiration
+sigma     | $\sigma$   | residual error
+Ci        | $C_i$      | internal CO2 concentration
+K         | $K_M$      | half-saturation
+
+* In lab 6 we used **Maximum Likelihood** to estimate parameters the model.
+* In lab 7 we used **Bootstrapping** to estimate the uncertainty in the parameters.
+* **In lab 8** we're going to extend this analysis one step further, and use the model to make predictions. Using **Monte Carlo** methods, we will propagate uncertainty into a confidence and predictive interval. We will learn about model sensitivity to adjusting parameter values.
+
 
 ## Set up  
 
 The first thing we want to do is to load up the outputs from out previous two analyses. For simplicity
 
 ```{r}
-## Load & subset the data
+## Load the data
 
 ## Define FvCB and lnLike functions
 
@@ -28,7 +46,8 @@ The first thing we want to do is to load up the outputs from out previous two an
 
 ### Task 1: Create `newdata`
 
-Similar to when we use `predict` with a lm or glm, when we make predictions using Monte Carlo methods we similarly need to define the set of new X's we want to make predictions for. Here, our goal initial goal is to draw a CI and PI around the curve, so to do that you need a sequence of values along the X-axis
+Our first goal is to draw a CI and PI around the model prediction curve. Similar to when we use `predict` with a lm or glm, when we make predictions using Monte Carlo methods we need to define the set of new X's we want to make predictions for, so we will need to define `newdata` as sequence of values along the X-axis.
+
 
 # Monte Carlo Uncertainty Propagation
 
@@ -60,29 +79,31 @@ This case is almost identical to what we did with the parametric bootstrap, with
 1. We want to use `newdata` to provide the X's
 2. We want to use the **sample** of parameters rather than the MLE. We need to do this so that we incorporate parameter uncertainty in the predictions.
 
-Furthermore, if we start with our parameteric bootstrap prediction
+We can start with the code we wrote for the parametric bootstrap prediction as the basis for the code needed in this lab.
 ```
     Aboot = rnorm(n,FvCB(theta,Ciboot),theta[5]) ### sample 
 ```
-we'll also want to split this into two lines, one where we save the prediction for the mean, the other where we save the predicted pseudodata
+Next we want to split this into two lines: one where we save the prediction for the mean, the other where we save the predicted pseudodata.
 
 ```
    Aconf[i,] = FvCB(<insert new parameters> , <insert new data>) ## predict means
    Apred[i,] = rnorm(nrow(newdata),Aconf[i,],Tpred[i,5])         ## predict pseudodata
 ```
 
-At this point you should be able to assemble and run your Monte Carlo loop
+At this point you should be able to assemble and run your Monte Carlo loop.
 
 ## Task 4: Summarize CI and PI
 
-With the MC run, our next step is to use `apply` to summarize the results in terms of the CI and PI. As an example, the following code calculates a 80% Confidence interval. We want to do the apply BY COLUMN because each column represents a different X value of our newdata sequence that we want to calculate an interval for.
+With the MC simulations completed, our next step is to use `apply` to summarize the results in terms of the CI and PI. As an example, the following code calculates a 80% Confidence interval. We want to do the apply BY COLUMN because each column represents a different X value of the `newdata` sequence that we created. At each point along the sequence we want to calculate both a CI and PI. 
 
 ```{r}
 CI = apply(Aconf,2,quantile, c(0.1,0.9))
 ```
 
 * Calculate a 95% interval for both the CI and PI
-* Add these lines to the plot you made in Lab 6 Question 5 (data + best fit line). Make sure to make the lines different colors and types and to include a legend
+* Add these lines to the plot you made in Lab 6 Question 5 (data + best fit line)
+* Now your plot should have the data, a best fit line, the CI and the PI
+* Make sure to use different colors and/or line types and to include a legend
 
 In addition to calculating intervals, we can look at the full predictive distribution at any point, as well as the distribution of expected values (i.e. means)
 ```{r}
@@ -94,11 +115,11 @@ lines(density(Apred[,j]),col="red",lwd=3)
 legend("topright",legend=c("mean","prediction"),col=1:2,lwd=3)
 ```
 
-* Add density plots near 200 and 600 ppm. Use `abline` to add vertical lines at the 95% CI and PI. Comment on the shape of these distributions and the relative balance of parameter vs residual error at each of the three ppm.
+* Using the provided code, produce density plots near 200 and 600 ppm. Use `abline` to add vertical lines at the 95% CI and PI. Comment on the shape of these distributions and the relative balance of parameter vs residual error at each of the three ppm.
 
 # Monte Carlo Sensitivity Analysis
 
-The next thing we're going to do is to look at how sensitive our predictions are to the different parameters in the model. This sensitivity will change for different values of Ci, so we're going to start by looking at the sensitivity at a specific value
+The next thing we're going to do is to look at how sensitive our predictions are to the different parameters in the model. This sensitivity will change for different values of Ci, so we're going to start by looking at the sensitivity at a specific value. First we choose the value of Ci in `newdata` that's closest to 400 ppm.
 
 ```{r}
 j = findInterval(400,newdata$Ci) ## Find the Ci value closest to 400 ppm
@@ -131,6 +152,8 @@ sens_j
 
 ```
 ## Task 5: interpreting sensitivity
+
+Given what you see in the sensitivity plots and the resulting statistics based on the regression and trend lines calculated for each plot, answer the following questions:
 
 * Which parameters causes photosynthetic rate to increase? Which cause it to decrease?
 * Are any of the responses nonlinear? If so, which ones and describe the pattern. 
