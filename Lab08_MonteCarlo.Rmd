@@ -54,8 +54,8 @@ Our first goal is to draw a CI and PI around the model prediction curve. Similar
 ```{r}
 ## Monte Carlo uncertainty analysis
 Nmc = 5000	#number of MC iterations
-Aconf = matrix(NA,Nmc,length(newdata$Ci)) # Storage for predicted means for A; row=iteration, col=X's
-Apred = matrix(NA,Nmc,length(newdata$Ci)) # Storage for predicted A; row=iteration, col=X's
+Aconf = matrix(NA,Nmc,length(newdata)) # Storage for predicted means for A; row=iteration, col=X's
+Apred = matrix(NA,Nmc,length(newdata)) # Storage for predicted A; row=iteration, col=X's
 Tpred = matrix(NA,Nmc,5)                  # Storage for parameters (theta) associated with predictions
 for(i in 1:Nmc){
     ## sample inputs
@@ -87,7 +87,7 @@ Next we want to split this into two lines: one where we save the prediction for 
 
 ```
    Aconf[i,] = FvCB(<insert new parameters> , <insert new data>) ## predict means
-   Apred[i,] = rnorm(nrow(newdata),Aconf[i,],Tpred[i,5])         ## predict pseudodata
+   Apred[i,] = rnorm(nrow(as.data.frame(newdata)),Aconf[i,],Tpred[i,5])         ## predict pseudodata
 ```
 
 At this point you should be able to assemble and run your Monte Carlo loop.
@@ -107,9 +107,9 @@ CI = apply(Aconf,2,quantile, c(0.1,0.9))
 
 In addition to calculating intervals, we can look at the full predictive distribution at any point, as well as the distribution of expected values (i.e. means)
 ```{r}
-j = findInterval(400,newdata$Ci) ## Find the Ci value closest to 400 ppm
+j = findInterval(400,newdata) ## Find the Ci value closest to 400 ppm
 plot(density(Aconf[,j]),xlim=range(Apred[,j]),
-     main=paste("Prediction at",round(newdata$Ci[j]),"ppm"),
+     main=paste("Prediction at",round(newdata[j]),"ppm"),
      xlab="Photosynthetic Rate (A)",lwd=3)
 lines(density(Apred[,j]),col="red",lwd=3)
 legend("topright",legend=c("mean","prediction"),col=1:2,lwd=3)
@@ -122,7 +122,7 @@ legend("topright",legend=c("mean","prediction"),col=1:2,lwd=3)
 The next thing we're going to do is to look at how sensitive our predictions are to the different parameters in the model. This sensitivity will change for different values of Ci, so we're going to start by looking at the sensitivity at a specific value. First we choose the value of Ci in `newdata` that's closest to 400 ppm.
 
 ```{r}
-j = findInterval(400,newdata$Ci) ## Find the Ci value closest to 400 ppm
+j = findInterval(400,newdata) ## Find the Ci value closest to 400 ppm
 
 sens_j = as.data.frame(matrix(NA,5,3)) ## create a DF to save results
 colnames(sens_j) = c("slope","linR2","trendR2")
@@ -194,8 +194,8 @@ sens <- function(j){
 and then loop over all of our values of Ci
 
 ```{r}
-sens_array = array(NA,dim=c(length(newdata$Ci),5,3))
-for(j in 1:length(newdata$Ci)){
+sens_array = array(NA,dim=c(length(newdata),5,3))
+for(j in 1:length(newdata)){
   sens_array[j,,] = as.matrix(sens(j))
 }
 ```
@@ -203,11 +203,11 @@ for(j in 1:length(newdata$Ci)){
 and then plot how sensitivity changes with Ci
 
 ```{r}
-plot(newdata$Ci, sens_array[,1,1],main=colnames(Tpred)[1],
+plot(newdata, sens_array[,1,1],main=colnames(Tpred)[1],
      type='l',ylab="slope") ## Vcmax slope
-plot(newdata$Ci, sens_array[,1,2],main=colnames(Tpred)[1],
+plot(newdata, sens_array[,1,2],main=colnames(Tpred)[1],
      type='l',ylab="R2",ylim=range(sens_array[,1,2:3])) ## Vcmax linear R2
-lines(newdata$Ci,sens_array[,1,3],main=colnames(Tpred)[1],
+lines(newdata,sens_array[,1,3],main=colnames(Tpred)[1],
       col="green") ## Vcmax trend R2
 ```
 
