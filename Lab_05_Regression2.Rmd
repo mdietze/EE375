@@ -42,7 +42,7 @@ Model assessment for a statistical model has a lot of similarities to how we ass
 
 For the overall best fit model:
 
-5. Use the `predict` function to generate a plot of predicted vs observed per capita CO2 emissions. Make sure to include a 1:1 line. Describe how the model performed based on this graph.
+5. Use the `predict` function to generate a plot of predicted vs observed per capita CO2 emissions (ie predicted CO2 emissions vs the data of CO2 emissions). Make sure to include a 1:1 line (a line with an intercept of 0 and slope of 1). Describe how the model performed based on this graph.
 
 6. Use the `plot` function to generate diagnostic plots. Include the residual and Normal Q-Q plots. Did the data meet the normality and constant variance assumptions of the regression model?
 
@@ -50,6 +50,6 @@ For the overall best fit model:
 
 In this final section we’re going to apply our regression models forward in order to do a few useful things. First, we will use the best **univariate** model to predict CO2 emissions over a range of x values. Then we will use the best **multivariate** model predict emissions in the future given a scenario of your choice.
 
-7. For the **best univariate model from Lab 04**, use `predict` to calculate the confidence and predictive intervals along a sequence of new x values. Generate a scatter plot that includes the regression line and these two intervals.
+7. For the **best univariate model from Lab 04**, use `predict` to calculate the confidence and predictive intervals along a sequence of new x values that matches the range of the x axis. Generate a scatter plot that includes the regression line and these two intervals. (Hint: predict() takes an argument 'newdata'.  newdata should be a dataframe where the column-names are the same as the terms in lm() )
 
-8. Using your **best fitting multivariate regression model**, predict (with CI and PI) what CO2 emissions will be over the next 25 years under a scenario of your choice. Choose one country for this analysis, and choose one of the variables in your multiple regression model to manipulate. For example: what if the life expectancy in Luxumborg increases by 1% per year? What if the GDP in Canada decreases by 2% per year? Keep things simple: assume all other variables in the multivariate stay constant, and the one that changes does so at a steady rate (for example %/year).
+8. Using your **best fitting multivariate regression model**, predict (with CI and PI) what CO2 emissions will be over the next 25 years under a scenario of your choice. Choose one country for this analysis, and choose one of the variables in your multiple regression model to manipulate. For example: what if the life expectancy in Luxumborg increases by 1% per year? What if the GDP in Canada decreases by 2% per year? Keep things simple: assume all other variables in the multivariate stay constant, and the one that changes does so at a steady rate (for example %/year). Your final plot should have year on the X axis, and CO2 emissions on the x axis. 
