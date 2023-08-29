@@ -10,32 +10,6 @@ output:
     toc_collapsed: false
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(shiny)   ## install these two packages in the Packages window (one time)
-library(plotly)
-library(tidyverse)
-```
-
-```{r, echo=FALSE}
-### load met data from previous labs
-met = read.csv("met_hourly.csv")
-met = met[sample.int(nrow(met),500),] ## subsample data
-```
-
-```{r,echo=FALSE}
-  ## Draw Plot (code from Lab 2)
-  plot(met$AirTemp, met$LongWave,
-     cex = 0.5,      ## decrease the symbol size 50%
-     col = "purple", ## change the point color
-     pch = "+",      ## change the point symbol
-     xlab = "Air Temperature (Celsius)",  ## label the x-axis with name and units
-     ylab = "Longwave Radiation (Watts)", ## label the y-axis with name and units
-     cex.lab = 1.3,			# increase the axis label font size by 30%
-     main = "2013 weather data, Lake Sunapee, NH", # title
-     cex.main = 1.5			# increase title font size 50%
-     )
-```
 
 # Objectives
 
@@ -45,24 +19,111 @@ There are two primary goals to this lab
 
 2. Think about how we fit and score simple models
 
-# Starting with a line...
+# How to Answer Questions For this Lab
 
-Unlike the previous lab, we're going to start with only a small amount of code and have you develop more of the application yourself. Specifically, the code above starts by loading up the met data we've used the last two labs and repeating the (non-interactive) plot of air temperature versus short wave (thermal) radiation. The only difference is that we've thinned the data a bit to make the graphic render more quickly. 
+Unlike in previous labs were you gave each answer in it's own ```{r} ``` R chunk, in this lab you will start with one ```{r} ``` chunk and add each step to *the same* ```{r} ``` R chunk. This means that your final lab will have *only one R chunk*. It will look something like this: 
 
-The first thing we're going to do is to add a line to the plot. In the R code block above add the following code after the plot:
+```
+  ---
+  title: "My Lab"
+  author: "My Name"
+  output: html_document
+  ---
+```
+
+Start of R chunk:
+
+```
+  ## The code to load up required packages ()
+ 
+  knitr::opts_chunk$set(echo = TRUE)
+  library(shiny)   ## install these two packages in the Packages window (one time)
+  library(plotly)
+  library(tidyverse)
+ 
+  ## load met data from previous labs
+ 
+  
+  ## inputPanel code
+    
+    
+  ## Start of renderPlot
+    
+    # Static Plot (Note: by the end of the lab, this section will be commented out with # in front of the code)
+      
+    # Interactive Plot 
+      
+      
+  # End of renderPlot 
+      
+  ## Score Metric code (Note: This section also commented out)
+      
+  ## Your Score Metric code
+      
+  ## renderPlotly
+    
+  ```
+ end of R chunk. 
+
+ # Question 1
+ 
+ This is my answer to question 1: 
+ 
+ # Question 2
+ 
+ This is my answer to question 2:
+
+# Prep
+
+Install the packages `shiny`, `tidyverse`, and `plotly` one at a time by pasting the statement: 
+
+```
+install.packages(`shiny`)
+
+```
+into your console. 
+
+# Task 1: add line to static plot
+
+We're going to start with only a small amount of code and have you develop more of the application yourself. Specifically, the code below starts by loading up the met data we've used the last two labs and repeating the (non-interactive) plot of air temperature versus long wave (thermal) radiation. The only difference is that we've thinned the data a bit to make the graphic render more quickly. 
+
+```{r, echo=FALSE, message=FALSE}
+## The code to load up required packages ()
+library(shiny)   ## install these two packages in the Packages window (one time)
+library(plotly)
+library(tidyverse)
+
+## load met data from previous labs
+met = read.csv("met_hourly.csv")
+met = met[sample.int(nrow(met),500),] ## subsample data
+
+## Static Plot (code from Lab 2)
+  plot(met$AirTemp, met$LongWave,
+       cex = 0.5,      ## decrease the symbol size 50%
+       col = "purple", ## change the point color
+       pch = "+",      ## change the point symbol
+       xlab = "Air Temperature (Celsius)",  ## label the x-axis with name and units
+       ylab = "Longwave Radiation (Watts)", ## label the y-axis with name and units
+       cex.lab = 1.3,			# increase the axis label font size by 30%
+       main = "2013 weather data, Lake Sunapee, NH", # title
+       cex.main = 1.5			# increase title font size 50%
+  )
+```
+
+ a. The first thing we're going to do is to add a line to the plot. In the R code block above add the following code after the plot:
 ```
 b0 = 350  ## intercept
 b1 = 0    ## slope
 x = seq(min(met$AirTemp),max(met$AirTemp),length=100) ## make a sequence of x values
 ```
 
-1. With the intercept, slope, and x in place, next add the calculation of a straight line, and store that in the variable `y`.
+b. With the intercept, slope, and x in place, next add the calculation of a straight line, and store that in the variable `y`.
 
-2. After calculating y, use `x`,`y` and the `lines` function to add your line to the plot. 
+c. After calculating y, use `x`,`y` and the `lines` function to add your line to the plot. 
 
-3. Knit your document to verify that the code runs and produces a plot
+d. Knit your document to verify that the code runs and produces a plot
 
-# Put this in Shiny
+# Task 2: Put this in Shiny
 
 Next we're going to move the plot into R's "Shiny" interactive graphics system.
 
@@ -72,14 +133,13 @@ renderPlot({
 ```
 and then close 
 ```
- },
- height=600) ## set the vertical dimension on the size of the plot
+ }) ## close of renderPlot
 ```
-This is a pretty unique syntax which we haven't seen before, whereby a whole chunk of code (between the `{` and `}`) is the first arguement to the function. The second argument tells Shiny how big to make the plot. Try knitting your document. Right now renderPlot isn't going to look any different when you Knit it because we haven't made anything interactive yet.
+This is a pretty unique syntax which we haven't seen before, whereby a whole chunk of code (between the `{` and `}`) is the first argument to the function. The second argument tells Shiny how big to make the plot. Try knitting your document. Right now renderPlot isn't going to look any different when you Knit it because we haven't made anything interactive yet.
 
-# Add an inputPanel
+# Task 3: Add an inputPanel
 
-Our next step is to add an `inputPanel`. This will allow us to interactively control different aspects of the plot. In this case, what we're going to do is to create two slider bars, one that controls the intercept of our line (b0), and the other that controls the slope (b1). Before the `renderPlot` block of code, add the following:
+Our next step is to add an `inputPanel`. This will allow us to interactively control different aspects of the plot. In this case, what we're going to do is to create two slider bars, one that controls the intercept of our line (b0), and the other that controls the slope (b1). *Before* the `renderPlot` block of code, add the following:
 ```
 ## Interactive Controls
 inputPanel(
@@ -89,7 +149,7 @@ inputPanel(
               min = 0, max = 10, value = 0, step = 0.1)
 )
 ```
-The `inputPanel` function literally creates a panel in our figure with input controls in it. If you put this function before renderPlot, the controls will be on top, while if you put it below the controls will be on the bottom. The arguements to the `inputPanel`function are calls to different R Shiny "input widget" functions. In this specific case we're setting up slider bars, which we can do using the `sliderInput` function. This function has a number of required arguements: 
+The `inputPanel` function literally creates a panel in our figure with input controls in it. If you put this function before renderPlot, the controls will be on top, while if you put it below the controls will be on the bottom. In the tamplate we included at the top, we put the controls at the top. The arguments to the `inputPanel`function are calls to different R Shiny "input widget" functions. In this specific case we're setting up slider bars, which we can do using the `sliderInput` function. This function has a number of required arguments: 
 
 * inputId = name of variable you want to control (in quotes)
 * label = text displayed on the slider
@@ -116,7 +176,7 @@ The `inputPanel` function literally creates a panel in our figure with input con
 
 ** Knit the document to see the addition of the inputPanel**
 
-# Connecting the plumbing
+# Task 4: Connecting the plumbing
 
 At this point you should see our inputPanel render, but you'll be disappointed that nothing happens when you try moving the slider bars. This is because we haven't yet connected the variables in the inputPanel to the code in the renderPlot. To do this you need to know that the values set by the input widgets are saved in the variable `input`. So, within renderPlot we'll need to replace
 ```
@@ -124,14 +184,25 @@ At this point you should see our inputPanel render, but you'll be disappointed t
 ```
 with
 ```
+  # y = b0 + b1*x
+```
+and add:
+```
   y = input$b0 + input$b1*x
 ```
-when we do this we can also drop the lines
+when we do this we can change the lines
 ```
 b0 = 350  ## intercept
 b1 = 0    ## slope
 ```
-because we no longer need to (or want to) hard-code the values of the slope and intercept to specific values
+to 
+
+```
+#b0 = 350  ## intercept
+#b1 = 0    ## slope
+```
+
+because we no longer need to (or want to) hard-code the values of the slope and intercept to specific values.
 
 **Knit the document and play with the slope and intercept sliders to control the line**
 
@@ -153,7 +224,7 @@ will create an input object in memory that you can then use to run your renderPl
 
 1. As you play with your Shiny app, some values of slope and intercept will draw a line that goes through the data, and some will not. If you're job was to manually find a line that is a good description of the relationship between Air Temperature and Longwave Radiation, what values would you choose for the slope and intercept?
 
-# Scoring Metrics
+# Task 5: Add a Scoring Metric
 
 In this section we're going to try to come up with a **metric** to use to score whether our fit was any good or not. In doing so let's start by calculating `ypred`, the value predicted by our line for every value of air temperature.
 ```
@@ -185,13 +256,46 @@ You should now put all of these pieces together and add the scoring code `render
 
 **Knit your code now and verify that the score has been added to your app and changes as you change the slope and intercept**
 
-# Finding a better score
+# Task 6: Finding a better score
 
 While our current score (total error) may initially seem to make sense, it has some limitations that become clear if we play around with it. For example, you could tinker around and find a line that fits really good such that the error score = 0 (yeah!) but you could also leave the slope flat and just set the intercept to the mean y value `r mean(met$LongWave)` and also get a score of zero. This occurs because at the mean the negative errors exactly cancel out the positive errors. So in this case we have two lines with the same score, but we would consider one a 'good fit' and the other a 'bad fit'. Similarly, if we dragged the intercept down, we'd get a negative error score. Is that good or bad? In other words, this metric has the disadvantage that we can't maximize it or minimize it to find the 'best' fit.
 
-## ★ Questions (2)
+a. Propose a better **metric** that you could use to score whether your fit was any good or not. Comment out the existing scoring function, and replace it with a new scoring function you come up with. There is no one "right" answer here. Try to think through a system that might do better than the scoring metric we provided. 
 
-2. Propose a better **metric** that you could use to score whether your fit was any good or not. Implement it in your scoring function, Knit your code, and see if it works (i.e. is maximized or minimized when the fit is 'best'). Describe the rational for your score. Report the best score you could find and the slope and intercept that produce that score.
+So replace
+```
+renderText({
+
+  <<scoring code from above>>
+
+})
+
+```
+with
+
+```
+#renderText({
+#
+#  <<scoring code from above>>
+#
+#})
+
+```
+and add a statement 
+
+```
+renderText({
+
+  <<your new scoring code>>
+
+})
+```
+
+
+Implement it in your scoring function, Knit your code, and see if it works (i.e. is maximized or minimized when the fit is 'best').
+
+## ★ Questions (2)
+Describe in words the rational for your score. Report the "best" score you could find and the slope and intercept that produce that score.
  
 # Render the plot using plotly
 

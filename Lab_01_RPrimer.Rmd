@@ -258,7 +258,7 @@ From these examples we can see a few things about R.
 
 2.	**Looking back at the Triginometry section, why were we multiplying the results of the atan and atan2 functions by 180/pi?**
 
-3.	**What is the difference between log and log10?**  (Hint: use help!)
+3.	**What is the difference between log and log10?**  (Hint: use `help()`)
 
 4.	**Pythagorean theorem**
   - a.	Given a right triangle with sides `a` and `b`, write a few lines of code that will calculate the length of the hypotenuse. 
@@ -333,7 +333,7 @@ So if we wanted to look up information on the `atan2()` function, we can type ei
 ```
 # These two commands will give us the same thing. Try typing them in to the command line.
 ?atan2
-help()
+help("atan")
 ```
 
 If on the other hand you are looking for a command (e.g. because you've forgotten the actual name of the function) you can use `help.search()`. For example:
