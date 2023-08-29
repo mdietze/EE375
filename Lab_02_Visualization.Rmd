@@ -63,7 +63,7 @@ met$AirTemp[1:10] # show the first 10 values of air temperature
 
 In general, it is better to **access data by name**, rather than using the row and column numbers, because this makes your code easier to understand and debug, making the process of coding less error prone. It also makes it much easier to adapt your code to new situations or data sets, where the columns might not come in the same order, or the data might not have the same number of rows or columns. This highlights a more general point, that you should use variables to represent names and numbers, especially if those names and numbers are reused, rather than 'hard coding' numeric values into the code.
 
-Another useful feature of R is that in additon to using positive indices to display specific rows, we can also use *negative* indices to remove specific rows. For example, if I wanted to drop the first 3 rows from the frog data:
+Another useful feature of R is that in addition to using positive indices to display specific rows, we can also use *negative* indices to remove specific rows. For example, if I wanted to drop the first 3 rows from the frog data:
 ```{r}
 dat[-(1:3),]
 ```

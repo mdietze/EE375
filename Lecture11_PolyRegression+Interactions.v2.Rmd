@@ -385,7 +385,6 @@ y1 = predict(l1,xnew,interval="confidence")
 lines(xseq,y1[,1],lwd=3,col=2)
 lines(xseq,y1[,2],lty=2,col=2)
 lines(xseq,y1[,3],lty=2,col=2)
-lines(xseq,theta.true,col=7,lwd=3)
 summary(l1)
 plot(l1)
 ```
