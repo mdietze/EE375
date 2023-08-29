@@ -27,7 +27,7 @@ It is best to start every lab with a clean environment. In other words, you don'
 It is good coding practice to keep your environment as clutter free as possible and to clear it regularly. 
 
 To do this, click on the the broom icon at the top of the Environment pane.
-![](http://test-pecan.bu.edu/shiny/GE375/clean_environment.png){width=50px}
+![](img/clean_environment.png){width=50px}
 
 Now that your environment is clean, we will load in the data.
 
@@ -341,13 +341,13 @@ R also has a set of `apply` functions for applying any function to sets of value
 
 The function `apply` will apply a function to either every row (dimension 1) or every column (dimension 2) of a matrix or data.frame. In this example the commands apply the `sum` function to the first two columns of the data (frogs & tadpoles) first calculated by row (the total number of individuals in each population) and second by column (the total number of frogs and tadpoles)
 
-![](http://test-pecan.bu.edu/shiny/GE375/apply_1.png){width=600px}
+![](img/apply_1.png){width=600px}
 
 ```{r}
 # calculate sum of frogs & tadpoles by row (1st dimension)
 apply(dat[1:5,1:2], MARGIN = 1, FUN = sum)  
 ```
-![](http://test-pecan.bu.edu/shiny/GE375/apply_2.png){width=600px}
+![](img/apply_2.png){width=600px}
 
 ```{r}
 # calculate sum of frogs & tadpoles by column (2nd dimension)
@@ -362,7 +362,7 @@ tapply(dat$frogs, INDEX = dat$color, FUN = mean)
 ```
 
 
-![](http://test-pecan.bu.edu/shiny/GE375/tapply.png){width=200px}
+![](img/tapply.png){width=200px}
 
 ```{r}
 # calculate mean of frogs by color & spots

@@ -23,7 +23,7 @@ To be able to compile Rmd into HTML or any other format you will need to install
 
 If you do not already see a button at the top of the editor window that says "Knit" with an icon of a blue ball of yarn next to it, you will need to install this package. 
 
-![](http://test-pecan.bu.edu/shiny/GE375/Knit_button.png){width=100px}
+![](img/Knit_button.png){width=100px}
 
 - From the "Packages" tab in the bottom right pane click on "Install"
 - Enter knitr as the package name, and then click Install
@@ -62,7 +62,7 @@ They start with: ` ```{r} ` (the `{r}` is very important because it's what makes
 They end with ` ``` `
 
 R code chunks also have in the top right hand corner three important icons (from left to right)
-![](http://test-pecan.bu.edu/shiny/GE375/R_chunk.png){width=100px}
+![](img/R_chunk.png){width=100px}
 
 1. Optional Settings. Once you get more comfortable using R, they can be useful.
 2. Run the code in all chunks up to this one.
@@ -354,19 +354,19 @@ RStudio has the capacity to auto-complete function names, function arguments, an
 
 For example, if you type ‘read.t’ and then hit TAB, RStudio will finish typing read.table and it will also show what information you can specify for the read.table function.  
 
-![](http://test-pecan.bu.edu/shiny/GE375/auto_complete_1.png){width=500px}
+![](img/auto_complete_1.png){width=500px}
 
 If you type read.table( and then hit TAB, RStudio will allow you to select the function argument that you want to fill in. 
 
-![](http://test-pecan.bu.edu/shiny/GE375/auto_complete_2.png){width=500px}
+![](img/auto_complete_2.png){width=500px}
 
 If you type read.table(“ and then hit TAB, RStudio will show you the files in your current working directory and allow you to select one. 
 
-![](http://test-pecan.bu.edu/shiny/GE375/auto_complete_3.png){width=300px}
+![](img/auto_complete_3.png){width=300px}
 
 If there are a lot of files in the directory, you can start typing the file name you want and then hit TAB again and RStudio will limit what it shows to just those files that match what you’ve typed so far.  
 
-![](http://test-pecan.bu.edu/shiny/GE375/auto_complete_4.png){width=300px}
+![](img/auto_complete_4.png){width=300px}
 
 # Data!
 
@@ -388,7 +388,7 @@ Below are all the basic data types in R:
 
 ## R Data Objects 
 
-![](http://test-pecan.bu.edu/shiny/GE375/Data_Objects.png){width=600px}
+![](img/Data_Objects.png){width=600px}
 
 We have already seen how to create scalars, as well as vectors that contain simple sequences. More generally you can create vectors using the `c( )` function that “combines” scalars of the same data type into a vector. You use it like this:
  
@@ -470,7 +470,7 @@ ls()
  
 Within the Environment window, clicking on a variable will show you the contents in a spreadsheet-like format in the Scripts window. Or if the variable has an arrow by it, you can click on it to expand it and see a preview of what it looks like.
 
-![](http://test-pecan.bu.edu/shiny/GE375/Environment.png){width=300px}
+![](img/Environment.png){width=300px}
 
 When we perform data analysis in R, **we do not open and edit the data files themselves.** This is may seem counter intuitive if you are used to using programs like Excel where you start by opening your data.  
 
@@ -478,7 +478,7 @@ Instead, we **load the data** in to R, i.e. we assign the data to a variable in 
 
 Note that if you just click on the file from within the **Files** tab, or try to open the file from File > "Open File..." that it may automatically open the file in a new editor tab or give you the option to "View File", but it it **doesn't load the data into R in any way we can use it.** You will know that you did not successfully load anything because the Environment will not change!
 
-![](http://test-pecan.bu.edu/shiny/GE375/View_Import_Data.png){width=300px}
+![](img/View_Import_Data.png){width=300px}
 
 
 ### Loading ASCII Text Files
