@@ -31,7 +31,7 @@ To do this, click on the the broom icon at the top of the Environment pane.
 
 Now that your environment is clean, we will load in the data.
 
-We'll be using the same data that we used in Lab 1. However, it is recommended that you copy the data file in to the same folder as Lab 2. Then we can run the code:
+We'll be using the same data that we used in Lab 1. However, it is recommended that you make sure the data file in to the same folder as Lab 2. Then we can run the code:
 
 ```{r}
 dat = read.table("Lab1_frogs.txt",header=TRUE)
@@ -77,12 +77,11 @@ met$time[x]  		## return specific elements of a vector
 ```
 
 
-## ★ Questions (1-4)
+## ★ Questions (1-3)
 
 1. **Show the 1033rd through 1056th row of weather data**
 2. **Show the 3rd through 8th rows of the 1st though 3rd columns of the frog data**
 3.	**Show just the odd numbered rows in the frog data. Write this code for the GENERAL CASE -- don’t just type c(1,3,5,…) but use functions that you learned in Lab 1 to set up the sequence.**
-4. **What was the _total_ amount of rain?** Hint: look back at Vector Math from Lab 1
 
 ## Converting Data Types
 
@@ -117,8 +116,8 @@ as.data.frame(x)
 as.list(x)
 ```
 
-## ★ Questions (5)
-5. **Using the frog data, show just the spots column as characters**
+## ★ Questions (4)
+4. **Using the frog data, show just the spots column as characters**
 
 # Logical operators and indexing
 
@@ -235,31 +234,70 @@ summary(hotData)
 
 These simple comparisons can provide a powerful means for subsetting data.
 
-## The subset function
+## dplyr: The filter and select functions
 
-R also has a built in function `subset` for doing this sort of subsetting that takes the data set as the first argument and the condition used for subsetting as the second argument. So the above could also be rewritten as
- 
+In addition to data manipulation functions provided within the base R libraries, there are a lot of external libraries developed to make data management more efficient. One of the most popular such libraries is `dplyr`.
+
+Here we load the library dplyr. If you haven't installed dplyr yet this line of code will throw an error, which you can correct by either using `install.packages("dplyr")` or the Packages > Install menu in the bottom right window of RStudio
 ```{r}
-hotData = subset(met, AirTemp > 25)
+library(dplyr)
 ```
 
-`subset` also has an optional 3rd argument for just selecting specific columns. So if you wanted to run the previous subset but only needed the columns `ShortWave` and `Rain` you could run
+dplyr includes a function `filter` that also does the sort of subsetting we saw in the previous tasks. I takes the data set as the first argument and the condition used for subsetting as the second argument. So the previous example could also be rewritten as
+ 
+```{r}
+hotData = dplyr::filter(met, AirTemp > 25)
+```
+
+`dplyr` also has an function `select` for just selecting specific columns. So if you wanted to subset just the columns `ShortWave` and `Rain` you could run
 
 ```{r}
-# select the rows of dat for which frogs are larger than or equal to 3
-# select the columns tadpoles and spots
-foo = subset(met, AirTemp > 25, select = c("ShortWave","Rain"))
+foo = dplyr::select(met, c("ShortWave","Rain"))
 head(foo)
 ```
 
-## ★ Questions (6)
-6.	**For the frog data set:** 
+We'll see more dplyr commands below, but a quick "cheat sheet" can be found [here](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)
+
+## Pipes
+
+When cleaning and organizing data it is common to have to string together multiple functions sequentially. For example, if we had data set `x` we might need to first run x through `function1()` and then run the output through `function2()`. In the examples above we did this either by using temporary variables,
+
+```
+y = function1(x)
+z = function2(y)
+```
+
+or by embedding one function call within another
+
+```
+z = function2(function1(x))
+```
+
+Many consider the first both options cumbersome, as the first creates a lot of temporary variables we don't need and the latter can be confusing, particularly when multiple functions are involved or the functions have additional arguments, because one ends up reading the functions in the reverse order that they are called.
+
+Pipes, `|>`, aim to address this issue by creating a way to pass the output of one function to another in order without creating a temporary variable.
+
+```
+z = x |> function1() |> function2()
+```
+
+As another example, if we wanted to both filter the met data by temperature AND select a subset of columns, we could pipe together multiple dplyr commands
+
+```{r}
+foo = met |> filter(AirTemp > 25) |> select(c("ShortWave","Rain"))
+head(foo)
+```
+
+In this instance, when used alone both functions took the dataset as the first arguement and then additional information as the second argument. Here, the first argument is implicit and one only needs to use specify the second. An important thing to remember about pipes is that they will _always_ pass in the *first* argument in a function.
+
+## ★ Questions (5)
+5.	**Using the frog data set and either base or dplyr functions:** 
 *  a.	display just the rows where frogs have spots
 *  b.	display just the rows where frogs are blue
-*  c.	how many blue tadpoles are there?
-*  d.	create a new object containing just the rows where there are between 3 and 5 tadpoles
-*  e.	display just the rows where there are less than 2.5 red frogs
-*  f.	display where either frogs do not have spots or there are more than 5 frogs
+*  c.	create a new object containing just the rows where there are between 3 and 5 tadpoles
+*  d.	display just the rows where there are less than 2.5 red frogs
+*  e.	display where either frogs do not have spots or there are more than 5 frogs
+
 
 # Summary tables and statistics
 
@@ -369,8 +407,37 @@ tapply(dat$frogs, INDEX = dat$color, FUN = mean)
 tapply(dat$frogs, INDEX =  dat[,c("color","spots")], FUN = mean)  
 ```
 
-## ★ Questions (7)
-7. **Use apply to calculate the across-population standard deviations in the numbers of frogs and tadpoles**
+`dplyr` also provide an alternative to `tapply` using the `group_by` and `summarize` commands. For example, the previous example could be written as
+
+```{r}
+
+dat |> group_by(color,spots) |> summarise(avg = mean(frogs))
+
+```
+
+Note that the `summarize` function creates a new column to store the output of the operation being performed. In this way `summarize` also makes it easy to calculate multiple summary statistics at once for the same groups. For example:
+
+```{r}
+dat |> group_by(color,spots) |> 
+  summarise(avgFrogs = mean(frogs), 
+            sdFrogs = sd(frogs), 
+            avgTadpoles = mean(tadpoles),
+            sdTadpoles = sd(tadpoles))
+```
+
+Another handy dplyr function is `mutate` which provides the ability to add new columns to a dataframe, for example based on computations involving other columns. For example, if we wanted to add a column to `met` that converted the datetime column `time` to just the calendar date we could do this as
+
+```{r}
+met = met |> 
+  mutate(time = as.POSIXct(time,tz="GMT")) |> ## convert from character to datetime
+  mutate(date = as.Date(time))                    ## convert from datetime to date
+head(met)
+```
+
+
+## ★ Questions (6-7)
+6. **Use apply to calculate the across-population standard deviations in the numbers of frogs and tadpoles**. Reminder: Each row of this dataset represents a unique population.
+7. **Use dplyr to calculate the daily mean air temperature**
 
 # Plotting & visualization
 
@@ -429,8 +496,7 @@ legend("topleft",  ## draw legend in top corner
 
 R plots can also handle dates and time intellegently if they're in the right format
 ```{r}
-time <- as.POSIXlt(met$time,tz="GMT")
-plot(time,met$AirTemp,
+plot(met$time,met$AirTemp,
      type = 'l',   ## switch to plotting lines instead of points
      ylab = "Air Temperature (Celsius)",  ## label the y-axis with name and units
      )
@@ -438,17 +504,17 @@ plot(time,met$AirTemp,
 
 The functions `lines` and `points` are also frequently used to add additional lines and points (respectively) to an existing plot.
 ```{r}
-met$time <- as.POSIXct(met$time,tz="GMT")  ## coerce time from character to datetime
-plot(time,met$AirTemp,
+plot(met$time,met$AirTemp,
      type = 'l',   ## switch to plotting lines instead of points
      ylab = "Air Temperature (Celsius)",  ## label the y-axis with name and units
      )
 
-month = months(met$time)                                  ## extract months from dates
-Tbar  = tapply(met$AirTemp,INDEX = month,FUN = mean)  ## calc monthly mean temp
-mbar  = tapply(met$time,INDEX = month,FUN = mean)         ## calc monthly mean date
-mbar  = as.POSIXct(mbar,origin="1970-01-01 00:00.00 UTC") ## coerce result back to datetime
-points(mbar,Tbar,col="red",pch=18,cex=2)              ## add monthly means to plot as solid diamonds (pch=18)
+## calculate monthly mean temperature
+mmet = met |> mutate(month = months(time)) |> 
+  group_by(month) |> 
+  summarize(Tbar = mean(AirTemp), mbar = mean(time))
+
+points(mmet$mbar,mmet$Tbar,col="red",pch=18,cex=2)              ## add monthly means to plot as solid diamonds (pch=18)
 ```
 
 For those accustomed to making figures with software that allows you to manipulate plots by hand by clicking on them, the process of making visualizations with code can initially feel difficult and frustrating. For example, you might want to nudge a label over by a little and you can't just drag it, you have to look up a lot of details in the `plot` or `par` functions to understand how to modify your code. However, what producing figures by code provides, which is ultimately time saving, is reliable *REPRODUCIBILITY*. It doesn't take many experiences of having to re-tweak a manual figure by hand when the data is updated, or when you need to produce a very similar plot for a similar dataset, to realize that manual, interactive figure drawing is imprecise, inefficient, and not scalable when you need to keep making figures (e.g. dashboards, regular reports).
@@ -462,7 +528,7 @@ In addition to rendering plots directly within Markdown, within the Plot window,
  
 ## Tidyverse
 
-Beyond `plot` and `hist` the course readings cover additional info data visualizations, and there's even more information provided in the "Additional Resources" section of the syllabus. Visualization also brings us to introduce the concept of the `tidyverse`. Up to now Lab 1 and Lab 2 have relied solely on "base" R packages -- tools that ship with R and have been around for decades. Over the last few years Hadley Wickham and colleagues have introduces a set of new packages for data manipulation and visualization that "share an underlying design philosophy, grammar, and data structures" around what they call "tidy" data. The tidyverse provides a number of alternative functions for subsetting and summarizing data that go beyond the first introduction provided above (see, for example, the data wrangling chapters in Wickham's [R for Data Science](https://r4ds.had.co.nz/)). But one of the most popular parts of the tidyverse are its data visualization tools, which are anchored around the `ggplot2` package, which numerous other packages build upon (see the Reverse Dependencies listing for the package https://cran.r-project.org/web/packages/ggplot2/index.html)
+Beyond `plot` and `hist` the course readings cover additional info data visualizations, and there's even more information provided in the "Additional Resources" section of the syllabus. Visualization also brings us to introduce the concept of the `tidyverse`. Over the last few years Hadley Wickham and colleagues have introduces a set of new packages for data manipulation and visualization that "share an underlying design philosophy, grammar, and data structures" around what they call "tidy" data. The `dplyr` package, which we saw above, is part of the tidyverse and as we saw provides a number of alternative functions for subsetting and summarizing data (see, for example, the data wrangling chapters in Wickham's [R for Data Science](https://r4ds.had.co.nz/)). Another popular part of the tidyverse are its data visualization tools, which are anchored around the `ggplot2` package, which numerous other packages build upon (see the Reverse Dependencies listing for the package https://cran.r-project.org/web/packages/ggplot2/index.html)
 
 The syntax for ggplot is a bit less intuitive than `plot`, but the following tool `esquisse` provides a graphical interface around ggplot that then returns the underlying code used to generate the plot.
 
