@@ -21,7 +21,7 @@ There are two primary goals to this lab
 
 # How to Answer Questions For this Lab
 
-Unlike in previous labs were you gave each answer in it's own ```{r} ``` R chunk, in this lab you will start with one ```{r} ``` chunk and add each step to *the same* ```{r} ``` R chunk. This means that your final lab will have *only one R chunk*. It will look something like this: 
+Unlike in previous labs were you gave each answer in it's own ```{r} ``` R chunk, in this lab you will start with one ```{r} ``` chunk and add each step to *the same* ```{r} ``` R chunk. This means that your final lab will have *only one R chunk*. It will look something like this, but with code or answers added under most of the # or ## comments (which currently serve to outline the code you'll be writing): 
 
 ```
   ---
@@ -44,7 +44,7 @@ Start of R chunk:
   ## load met data from previous labs
  
   
-  ## inputPanel code
+  ## Interactive Controls: inputPanel code
     
     
   ## Start of renderPlot
@@ -95,7 +95,7 @@ library(tidyverse)
 
 ## load met data from previous labs
 met = read.csv("met_hourly.csv")
-met = met[sample.int(nrow(met),500),] ## subsample data
+met = met[sample.int(nrow(met),500),] ## subsample 500 random data points
 
 ## Static Plot (code from Lab 2)
   plot(met$AirTemp, met$LongWave,
@@ -135,7 +135,7 @@ and then close
 ```
  }) ## close of renderPlot
 ```
-This is a pretty unique syntax which we haven't seen before, whereby a whole chunk of code (between the `{` and `}`) is the first argument to the function. The second argument tells Shiny how big to make the plot. Try knitting your document. Right now renderPlot isn't going to look any different when you Knit it because we haven't made anything interactive yet.
+This is a pretty unique syntax which we haven't seen before, whereby a whole chunk of code (between the `{` and `}`) is the first argument to the function. Try knitting your document. Right now renderPlot isn't going to look any different when you Knit it because we haven't made anything interactive yet.
 
 # Task 3: Add an inputPanel
 
@@ -149,7 +149,7 @@ inputPanel(
               min = 0, max = 10, value = 0, step = 0.1)
 )
 ```
-The `inputPanel` function literally creates a panel in our figure with input controls in it. If you put this function before renderPlot, the controls will be on top, while if you put it below the controls will be on the bottom. In the tamplate we included at the top, we put the controls at the top. The arguments to the `inputPanel`function are calls to different R Shiny "input widget" functions. In this specific case we're setting up slider bars, which we can do using the `sliderInput` function. This function has a number of required arguments: 
+The `inputPanel` function literally creates a panel in our figure with input controls in it. If you put this function before renderPlot, the controls will be on top, while if you put it below the controls will be on the bottom. In the code outline we included earlier, we put the controls at the top. The arguments to the `inputPanel`function are calls to different R Shiny "input widget" functions. In this specific case we're setting up slider bars, which we can do using the `sliderInput` function. This function has a number of required arguments: 
 
 * inputId = name of variable you want to control (in quotes)
 * label = text displayed on the slider
@@ -160,7 +160,7 @@ The `inputPanel` function literally creates a panel in our figure with input con
  
 `inputPanel` can take any number of arguments, one for each widget we want to add, with the order of the arguments controlling the order these widgets are in the graph. There's a [wide variety of different widgets](https://shiny.rstudio.com/tutorial/written-tutorial/lesson3/) you can add to a Shiny app to control different things. These include:
 
-* `actionButton` - 	Action Button
+* `actionButton` - 	Button you click on to do something
 * `checkboxGroupInput` -	A group of check boxes
 * `checkboxInput` -	A single check box
 * `dateInput` -	A calendar to aid date selection
@@ -168,17 +168,17 @@ The `inputPanel` function literally creates a panel in our figure with input con
 * `fileInput` -	A file upload control wizard
 * `helpText` -	Help text that can be added to an input form
 * `numericInput` -	A field to enter numbers
-* `radioButtons` -	A set of radio buttons
+* `radioButtons` -	A set of radio buttons (select an item from a list)
 * `selectInput` -	A box with choices to select from
 * `sliderInput` -	A slider bar
 * `submitButton` -	A submit button
 * `textInput` -	A field to enter text
 
-** Knit the document to see the addition of the inputPanel**
+** Knit the document to see the addition of the inputPanel**. Be aware that at this point the inputPanel doesn't yet control anything in the plot.
 
 # Task 4: Connecting the plumbing
 
-At this point you should see our inputPanel render, but you'll be disappointed that nothing happens when you try moving the slider bars. This is because we haven't yet connected the variables in the inputPanel to the code in the renderPlot. To do this you need to know that the values set by the input widgets are saved in the variable `input`. So, within renderPlot we'll need to replace
+After the last step you should see our inputPanel render, but you'll be disappointed that nothing happens when you try moving the slider bars. This is because we haven't yet connected the variables in the inputPanel to the code in the renderPlot. To do this you need to know that the values set by the input widgets are saved in the variable `input`. So, within renderPlot we'll need to replace
 ```
   y = b0 + b1*x
 ```
@@ -208,7 +208,7 @@ because we no longer need to (or want to) hard-code the values of the slope and 
 
 ### Hints for debugging in Shiny
 
-If by this point you've made any mistakes when coding up the lab you've probably discovered that Shiny is even less forgiving than normal R if there are any errors. Often you're whole figure will be replaced by a single error message, and it can be unclear which specific line caused the error. Here are some hints to help you try and debug Shiny
+If by this point you've made any mistakes when coding up the lab you've probably discovered that Shiny is even less forgiving than normal R if there are any errors. Often your whole figure will be replaced by a single error message, and it can be unclear which specific line caused the error. Here are some hints to help you try and debug Shiny
 
 1. **Start simply, add complexity.** Much like we're doing in this lab, build up more complex apps one step at a time and check that the app runs between every step. If you've only changed one or two lines of code, then most of the time your bug is in one of those new lines.
 2. **Try running code interactively.** For example, if you skip past the `renderPlot({` you can still run the remaining bits of code line-by-line or by selecting chunks and running them. This can often make it easier to find the offending line of code.
@@ -222,7 +222,7 @@ will create an input object in memory that you can then use to run your renderPl
 
 ## ★ Questions (1)
 
-1. As you play with your Shiny app, some values of slope and intercept will draw a line that goes through the data, and some will not. If you're job was to manually find a line that is a good description of the relationship between Air Temperature and Longwave Radiation, what values would you choose for the slope and intercept?
+1. As you play with your Shiny app, some values of slope and intercept will draw a line that goes through the data, and some will not. If you're job was to **manually** find a line that is a good description of the relationship between Air Temperature and Longwave Radiation, what values would you choose for the slope and intercept? Note: if you already know how to fit a regression in R, please don't cheat by asking R to fit the line for you
 
 # Task 5: Add a Scoring Metric
 
