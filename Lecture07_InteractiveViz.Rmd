@@ -10,9 +10,10 @@ output:
 library(plotly)
 library(tidyverse)
 library(animation)
-library(STRbook)
 library(gganimate)
 library(shiny)
+##library(STRbook)  #devtools::install_github("andrewzm/STRbook")
+download.file("https://github.com/andrewzm/STRbook/raw/master/data/NOAA_df_1990.rda","NOAA_df_1990.rda")
 
 data(diamonds,package="ggplot2")
 
@@ -21,7 +22,9 @@ met = read.csv("met_hourly.csv")
 met2 = met[sample.int(nrow(met),500),] ## subsample data
 
 ## load NOAA data
-data("NOAA_df_1990", package = "STRbook")
+#data("NOAA_df_1990", package = "STRbook")
+load("NOAA_df_1990.rda")
+
 Tmax <- filter(NOAA_df_1990,     # subset the data
               proc == "Tmax" &   # only max temperature
               month %in% 7:8 &   # May to September
