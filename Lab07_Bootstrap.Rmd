@@ -4,7 +4,7 @@ author: "EE 375"
 output: html_document
 ---
 
-In the previous lab we use Maximum Likelihood to estimate parameters to the Farquhar, von Caemmerer, and Berry (1980) photosynthesis model [FvCB model] using leaf-level data on Aspen collected at the Niwot Ridge LTER site in Colorado. Today we're going to build on that example by looking at ways to estimate the uncertainty in the parameters.
+In the previous lab we use Maximum Likelihood to estimate parameters to the Farquhar, von Caemmerer, and Berry (1980) photosynthesis model [FvCB model] using leaf-level data on Aspen collected at the Niwot Ridge LTER site in Colorado. Today we're going to build on that example by looking at ways to estimate the uncertainty in the FvCB model parameters.
 
 ### Task 1: Load the data, model, and Maximum Likelihood Estimation (MLE) From Lab 6
 
@@ -28,23 +28,23 @@ You don't need to reproduce any of the other analyses and figures we did in Lab 
 
 ## Non-parametric Bootstrap
 
-The first method we will explore for estimating uncertainties is the non-parametric bootstrap. This method is based on resampling the original data, with replacement, in order to generate pseudodata sets. The original analysis is then performed on this replicate pseudodata. In this case we will be rerunning our Maximum Likelihood optimization in order to estimate the FvCB parameters for each data set. This process is repeated thousands of times in order to build up a distribution of parameter estimates.
+The first method we will explore for estimating uncertainties is the non-parametric bootstrap. This method is based on resampling the original data, with replacement, in order to generate pseudodata sets. The original analysis is then performed on this replicate pseudodata. In this case we will be rerunning our Maximum Likelihood optimization in order to estimate the FvCB parameters for each data set. This process is then repeated thousands of times in order to build up a distribution of parameter estimates.
 
 The basic steps of the non-parametric bootstrap are to:
 
-1. Generate a sample. In this case we're going to sample the row numbers so that we can preserve the relationship between our x and y variables (Ci and A)
+1. Generate a sample. In this case we're going to sample the row numbers so that we can preserve the relationship between our x and y variables (Ci and Ao)
 2. Recalculate the statistics you are interested in. Here that's the MLE parameters
 3. Save the results. Here we use a matrix, _theta.boot_, where each row is a different bootstrap estimate and each column is a different parameter. Thus looking down each column shows us all the parameter estimates.
 
 ```{r}
 nboot = 2000
-theta.boot = matrix(NA,nboot,5)
+theta.boot = matrix(NA,nboot,5) ## FvCB model has 5 parameters
 
 for(i in 1:nboot){
-  samp <- sample(1:length(Ci),length(Ci),replace=TRUE) ### generate sample 
+  samp <- sample(1:length(Ci),length(Ci),replace=TRUE) ### generate sample of row numbers
   out <- suppressWarnings(optim(fit$par,lnLike,Ao=Ao[samp],Ci=Ci[samp])) ### recalculate statistics
   theta.boot[i,] <- out$par  ## save results
-  if(i%%100 == 0) print(i) ## counter. Counter lets you know how many times the for loop ran. Comment out for knitting
+  if(i%%100 == 0) print(i) ## Counter to let you know how many times the `for` loop ran. **Comment out for knitting**
 }
 
 colnames(theta.boot) = c("Vcmax","K","cp","r","sigma")  
@@ -58,7 +58,7 @@ For each column in theta.boot, calculate a 95% Confidence interval. Do this by _
 
 Plot histograms for each parameter: Vcmax, K, cp, r, and sigma. Use the _abline_ function to add vertical lines for the Maximum Likelihood Estimate (MLE) and the Confidence Interval (CI).
 
-Based on the CI, which parameters are not significantly different from 0?
+Based on the CI, which parameters are significantly different from 0? Which are not?
 
 
 ### Task 4: Summary Table
@@ -67,11 +67,11 @@ Create a table that summarizes the MLE, standard deviation, and CI for each para
 
 ### Task 5: Parameter correlations
 
-Parameter estimates from the same model are frequently correlated with one another (e.g. if you increase one parameter you have to decrease another to get a similar prediction). It is important to check these correlations when fitting models, as it affects out ability to make inferences about individual parameters and to make predictions. Really strong correlations may indicate a model that is over-parameterized (has too many parameters) as the data cannot tell the parameters apart. Frequently over-parameterized models should be simplified (i.e. tested against simpler models that have fewer parameters.) 
+Parameter estimates from the same model are frequently correlated with one another (e.g. if you increase one parameter you have to decrease another to get a similar prediction). It is important to check these correlations when fitting models, as it affects our ability to make inferences about individual parameters and to make predictions. Really strong correlations may indicate a model that is over-parameterized (has too many parameters) as the data cannot tell the parameters apart. Frequently over-parameterized models should be simplified (i.e. tested against simpler models that have fewer parameters.) 
 
 The two ways that we assess parameter correlations are exactly the same as what we did when we assessed colinearity: we calculate the correlation matrix using _cor_ and we visually assess the correlations using scatterplots (e.g. _pairs_). Generate these plots and statistics and report which parameters are highly correlated with one another.
 
-** Before proceeding to the next step, save the results so far (e.g. save theta.boot as theta.boot.non.parametric) so you don't overwrite them in the next section. You will be asked to compare these results to those below**
+** Before proceeding to the next step, save the results so far (e.g. save theta.boot as theta.boot.non.parametric) so you don't overwrite them in the next section, and so you can use them in next week's lab. You will be asked to compare these results to those below**
 
 ## Parameteric Bootstrap
 
@@ -82,7 +82,7 @@ In lecture we learned that there were two alternatives for how to conduct the bo
 Starting from the code for the non-parametric bootstrap (code from above Task 2), modify this code to perform the parametric bootstrap. To do this you will have to change the 'generate sample' step into two steps, one to generate the Ci sample, and one to generate the A sample. 
 
 1. Draw a sample of input variables (in this case Ci) that is the _same size_ as the original data. I'd recommend drawing from a uniform distribution (_runif_) over the range of Ci (e.g. 0 to 700).
-2. Draw a sample of the output variable (in this case A). To do this you will need to run the model, FvCB, given the input (Ci) and the orignial _best fit_ parameters (MLE estimates). You also need to include a residual error by simulating errors from the Normal distribution (_rnorm_), again using the MLE estimate of the standard deviation, sigma, as the standard deviation in the Normal.
+2. Draw a sample of the output variable (in this case Ao). To do this you will need to run the model, FvCB, given the input (Ci) and the original _best fit_ parameters (MLE estimates). You also need to include a residual error by simulating errors from the Normal distribution (_rnorm_), using the MLE estimate of the standard deviation, sigma, as the standard deviation in the Normal.
 
 After completing these steps you will then have two simulated data sets (e.g. Ci.boot and A.boot) that you can then plug into optim at the 'recalculate statistics' step. The rest of the bootstrap is exactly the same.
 
@@ -92,12 +92,12 @@ Repeat Tasks 2-5 for the Parametric Bootstrap outputs.
 
 ### Task 8: Comparison
 
-Compare your results from the two approaches
+Compare your results from the two approaches.
 
 ### Extra Credit: Power Analysis
 
 To explore what would happen if you could increase your sample size, rerun the parametric bootstrap for a range of **increasing** sample sizes. Specifically if _n_ is the size of the original data set, run the analysis at sample sizes of n, 2n, 4n, 8n, 16n, and 32n.  
 
-Next, for the variable *r* specifically, plot the confidence interval as a function of sample size. In plot set log='x' to put the x-axis on a log scale (since we varied n by factors of 2)
+Next, for the variable *r* specifically, plot the confidence interval (y-axis, two lines) as a function of sample size (x-axis). In plot set log='x' to put the x-axis on a log scale (since we varied n by factors of 2). Also use abline to add a horizontal line at y=0.
 
 What sample size would be required to be able to distinguish *r* from zero?
