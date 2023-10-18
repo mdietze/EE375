@@ -1,6 +1,7 @@
 ---
 title: "Lab 06 - Maximum Likelihood"
 author: "EE 375"
+runtime: shiny
 output: html_document
 ---
 
