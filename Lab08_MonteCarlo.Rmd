@@ -27,12 +27,12 @@ K         | $K_M$      | half-saturation
 
 * In lab 6 we used **Maximum Likelihood** to estimate parameters the model.
 * In lab 7 we used **Bootstrapping** to estimate the uncertainty in the parameters.
-* **In lab 8** we're going to extend this analysis one step further, and use the model to make predictions. Using **Monte Carlo** methods, we will propagate uncertainty into a confidence and predictive interval. We will learn about model sensitivity to adjusting parameter values.
+* **In lab 8** we're going to extend this analysis one step further, and use the model to make predictions. Using **Monte Carlo** methods, we will propagate uncertainty into a confidence and predictive interval. We will also learn about model sensitivity by adjusting parameter values.
 
 
 ## Set up  
 
-The first thing we want to do is to load up the outputs from out previous two analyses. For simplicity
+The first thing we want to do is to load up the outputs from our previous two analyses. We don't need the entirety of the past two labs, just the following steps:
 
 ```{r}
 ## Load the data
@@ -51,12 +51,14 @@ Our first goal is to draw a CI and PI around the model prediction curve. Similar
 
 # Monte Carlo Uncertainty Propagation
 
+Below is the initial stub of code to perform Monte Carlo uncertainty propagation. Over the next three tasks you will be adding additional code to this code chunk to build out the analysis. A lot of this code is provided for you, but pay careful attention to places where you need to fill in detail (e.g. notes like `<insert sample size here>`)
+
 ```{r}
 ## Monte Carlo uncertainty analysis
 Nmc = 5000	#number of MC iterations
 Aconf = matrix(NA,Nmc,length(newdata)) # Storage for predicted means for A; row=iteration, col=X's
 Apred = matrix(NA,Nmc,length(newdata)) # Storage for predicted A; row=iteration, col=X's
-Tpred = matrix(NA,Nmc,5)                  # Storage for parameters (theta) associated with predictions
+Tpred = matrix(NA,Nmc,5)               # Storage for parameters (theta) associated with predictions
 for(i in 1:Nmc){
     ## sample inputs
 
@@ -107,7 +109,7 @@ CI = apply(Aconf,2,quantile, c(0.1,0.9))
 
 In addition to calculating intervals, we can look at the full predictive distribution at any point, as well as the distribution of expected values (i.e. means)
 ```{r}
-j = findInterval(400,newdata) ## Find the Ci value closest to 400 ppm
+j = findInterval(400,newdata) ## Find the Ci value in newdata closest to 400 ppm
 plot(density(Aconf[,j]),xlim=range(Apred[,j]),
      main=paste("Prediction at",round(newdata[j]),"ppm"),
      xlab="Photosynthetic Rate (A)",lwd=3)
@@ -119,7 +121,7 @@ legend("topright",legend=c("mean","prediction"),col=1:2,lwd=3)
 
 # Monte Carlo Sensitivity Analysis
 
-The next thing we're going to do is to look at how sensitive our predictions are to the different parameters in the model. This sensitivity will change for different values of Ci, so we're going to start by looking at the sensitivity at a specific value. First we choose the value of Ci in `newdata` that's closest to 400 ppm.
+The next thing we're going to do is to use the outputs of our Monte Carlo analysis to look at how sensitive our predictions are to the different parameters in the model. This sensitivity will change for different values of Ci, so we're going to start by looking at the sensitivity at a specific value. First we choose the value of Ci in `newdata` that's closest to 400 ppm.
 
 ```{r}
 j = findInterval(400,newdata) ## Find the Ci value closest to 400 ppm
