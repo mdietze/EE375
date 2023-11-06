@@ -12,7 +12,7 @@ library(shiny)
 There is a new Gulf of Maine fishery opening up for the very first time. Although the fish species in question (Lotka volterra) has been known to science for a while, the technology to catch it has only recently become available. Given the interest in this new fishery and technology, NOAA estimates that this upcoming year will see an unprecedented surge of fishing effort for L. volterra. Your job is to determine the best way to manage the Gulf of Maine L. volterra fishery.
 Scientists have been studying L. volterra in the lab for many years, so they are confident that this species grows according to a simple logistic function with an intrinsic growth rate (r) of 0.6 fish per fish per year. Since no fishing has taken place, it is assumed that the current stock of 3,200,000 tonnes in the Gulf of Maine is the carrying capacity.
 
-To explore management options we're going to create a decision support tool centered on a set of interactive visualizations using an R technology called Shiny.  To learn more about creating interactive documents in Shiny, see [here](http://rmarkdown.rstudio.com/authoring_shiny.html) and [here] (https://shiny.rstudio.com/articles/interactive-docs.html). 
+To explore management options we're going to create a decision support tool centered on a set of interactive visualizations using an R technology called Shiny.  To learn more about creating interactive documents in Shiny, see [here](http://rmarkdown.rstudio.com/authoring_shiny.html) and [here](https://shiny.rstudio.com/articles/interactive-docs.html). 
 
 When completing this lab, make sure to reference the instructions and sequence of steps from Lab 3 -- in particular, **make sure you can get a graphic to work non-interactively before you add Shiny** and **add complexity one step at a time (and Knit in between) so if something breaks it's clear where the error is**.
 
@@ -40,8 +40,9 @@ First, let's begin by considering the population without harvest. This code is d
   for(t in 1:(nt-1)){
     N[t+1] = max(0,N[t] + r*N[t]*(1-N[t]/K))  ## the max here is used to ensure population numbers are never negative
   }
-  plot(N,xlab="time",ylab="tonnes",type='l',
-       main="L. volterra fish stock projection")
+  plot(N,xlab="time",ylab="tonnes",type='b',
+       main="L. volterra fish stock projection",
+       ylim=c(0,5000000),col="purple")
   
   ####################
   ## Growth curve plot
@@ -49,7 +50,8 @@ First, let's begin by considering the population without harvest. This code is d
   Nt = seq(0,input$K*1.1,length=1000) ## seqence of N values over which we'll calculate growth
   dN = input$r*Nt*(1-Nt/K)            ## Growth curve (dN/dt)
   
-  plot(Nt,dN,xlab="N",ylab = "dN/dt",type='l')
+  plot(Nt,dN,xlab="N",ylab = "dN/dt",
+       type='l',ylim=c(0,1000000))
   abline(h=0,lty=2,col="orange",lwd=2)    ## draw the equilibrium line (horizonal line at 0)
   lines(N,r*N*(1-N/K),type="b",col="purple")  ## add the time-series population dynamics
   
@@ -112,7 +114,7 @@ Building on the Shiny app from part A:
 
 2. In the first panel, add harvest to the population time-series model
 
-3. In the second panel, change the equilibrium line to be fixed effort harvest line. Hint: continue to use `abline`, but use it to set the intercept (0) and the slope (E)
+3. In the second panel, change the equilibrium line to be fixed effort harvest line. Hint: continue to use `abline`, but use it to set the intercept (0) and the slope (E).
 
 Task B1. Estimate, by looking at your plot, the harvest (tonnes/year) and stock levels (tonnes) at equilibrium for a fishery with 18% fixed effort limit. Extra Credit: Calculate these equilibrium harvest and stock values explicitly and have your app report the numbers.
 
@@ -129,9 +131,9 @@ Building on the Shiny app from part B:
 
 * Add a numericInput catchability (default = 0.0001) and a slider for number of vessels (default = 500). Comment out your slider for Harvest Effort (E), which is no longer an input (but leave the code so part B can be graded)
 
-* In the first panel, update your harvest model
+* In the first panel, make a copy of your harvest model and update one version to include V and $\alpha$. Comment out the earlier version with E (leaving it so part B can be graded)
 
-* In the second panel, update your equilibrium line
+* In the second panel, update your equilibrium line to use V and $\alpha$. Similar to the last two steps, leave a commented out copy of the version using E so part B can be graded.
 
 * Add a third panel that contains an effort-yield curve and includes a vertical line on the graph indicated the current number of vessels (V). To draw the effort-yield curve start by calculating E for the **same sequence** of stock levels (Nt) you use in panel 2 to calculate growth:
 
@@ -160,7 +162,7 @@ Building on your Shiny app from part C:
 
 Task D1. Setting all other inputs to their default parameters, what is the optimal level of effort (number of vessels) to maximize economic yield (MEY) for the fishery? What is the total profit at that effort level? What is the per-vessel profit at that effort level? What is the total harvest at MEY? How does this compare to the MSY? 
 
-Task D2. If the government offers a $0.50/kg subsidy on the price of the fish, what will happen to the optimal level of effort? What will the total and per-vessel profit be with this level of effort?
+Task D2. If the government offers a $0.50/kg subsidy on the price of the fish, what will happen to the optimal level of effort? What will be the total and per-vessel profit with this level of effort?
 
 Task D3. If habitat degradation reduces carrying capacity by 50%, what will happen to the optimal level of effort? What will the total and per-vessel profit be with this level of effort?
 
