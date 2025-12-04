@@ -27,7 +27,8 @@ A2.	Using the same initial conditions, model the growth of this population using
 A3.	What is the doubling time for this population according to both the continuous and discrete models? (10%)
 
 A4. 	Construct an informative graphic to show both population growth curves on one graph. You should construct this graphic with the goal of clearly and simply illustrating the ways in which these models are similar and different. Hint: The functions points and lines are handy for adding to an existing plot. (10%)
-For full credit, you must: 
+For full credit, you must:
+
 * fully label x and y axes (hint: ylab and xlab arguments to plot)
 * use color to convey information (hint: col=”black”)
 * use symbol type to convey information (e.g. lines vs points, different shapes, etc) (hint: pch, lty, lwd could all be useful here)
@@ -60,4 +61,4 @@ For full credit on the plots, you must:
 * fully label x and y axes
 * Illustrate the maximum (ideas: in addition to everything above, check out the functions text, arrows, segments, and abline (especially with v=.. or h=..))
 
-Extra Credit: Repeat B1 and B2 assuming r and K both have a standard error of 10% and that their parameter distributions can be well approximated by a Gaussian distribution. For the updated B1 draw the mean and 95% CI as well as your original result without uncertainty. For the updated B2 provide a histogram and calculate the mean and CI. How does accounting for uncertainty uncertainty affect your results?
+Extra Credit (+30%): Repeat B1 and B2 assuming r and K both have a standard error of 10% and that their parameter distributions can be well approximated by a Gaussian distribution. For the updated B1 draw the mean and 95% CI as well as your original result without uncertainty. For the updated B2 provide a histogram and calculate the mean and CI. How does accounting for uncertainty affect your results?

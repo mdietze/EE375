@@ -245,7 +245,7 @@ From these examples we can see a few things about R.
    - Second, we can assign both constants and the results of functions to variables and we can see the value of a variable by entering it at the command prompt (`y = sqrt(36)`). 
 
 
-## ★ Questions (1-5)
+## ★ Questions (1-3)
 
 1. **Evaluate the following:**
    - a.	ln(1)
@@ -256,15 +256,11 @@ From these examples we can see a few things about R.
    - f.	ln(1/5)
    - g.	How does R represent when the output of a function is not a number?
 
-2.	**Looking back at the Triginometry section, why were we multiplying the results of the atan and atan2 functions by 180/pi?**
+2.	**What is the difference between log and log10?**  (Hint: use `help()`)
 
-3.	**What is the difference between log and log10?**  (Hint: use `help()`)
-
-4.	**Pythagorean theorem**
+3.	**Pythagorean theorem**
   - a.	Given a right triangle with sides `a` and `b`, write a few lines of code that will calculate the length of the hypotenuse. 
   - b.	Try out your code with `a=5` and `b=13`.
-
-5.	**Subtract the month you were born from the remainder left after you divide the year you were born by the day you were born (show code.)**
 
 ## Sequences
 
@@ -314,13 +310,11 @@ cumsum(1:10)		## cumulative sum of values in a vector
 prod(1:10)		  ## product of values in a vector
 ```
  
-## ★ Questions (6-9)
+## ★ Questions (4-6)
 
-6.	**Describe the difference in output between sum and cumsum.**
-7.	**Generate a sequence of even numbers from -6 to 6**
-8.	**Generate a sequence of values from -4.8 to -3.43 that is length 8** (show code)
-  - What is the difference between values in this sequence?
-9.	**What is the sum of the _exponential_ of the sequence in question 8?**
+4.	**Generate a sequence of even numbers from -6 to 6**
+5.	**Generate a sequence of values from -4.8 to -3.43 that is length 8**
+6.	**What is the sum of the _exponential_ of the sequence in question 5?**
 
 ## Help and Documentation
 
@@ -443,9 +437,9 @@ mylist <- list(a = 1,
 mylist
 ```
    
-## ★ Questions (10)
+## ★ Questions (7)
 
-10.	**Create a character vector that contains the names of 4 people you admire.**
+7.	**Create a character vector that contains the names of 4 people you admire.**
 
 
 ## Loading and Saving Data
@@ -537,11 +531,11 @@ These commands will be very helpful if you don't finish an activity by the end o
 
 Finally, while we won't use these explicitly in this class, there are a large number of other options for getting data in and out of R in specific formats (e.g. GIS data, image data, etc) and ways to connect R to data sources more dynamically (e.g. SQL databases, web APIs, S3 buckets) that can be particularly useful when dealing with large data sets. The **R Data Import/Export** manual on the R website is a place to start to learn more about moving data in and out of R.
 
-## ★ Questions (11-12)
+## ★ Questions (8-9)
 
-11. Use R commands (e.g., do not click "import dataset" and use the dialog there) to read in the file `met_hourly.csv` and assign it the variable name `met`
+8. Use R commands (e.g., do not click "import dataset" and use the dialog there) to read in the file `met_hourly.csv` and assign it the variable name `met`
 
-12. Save the matrix `x` to a csv file
+9. Save the matrix `x` to a csv file
 
 ## Data Exploration
 
@@ -595,9 +589,9 @@ The `summary` function will give you basic summary statistics on a data set.
 summary(dat)
 ```
 
-## ★ Questions (13)
+## ★ Questions (10)
 
-13. Use the commands above to explore the contents of `met`. Describe in words what this file contains and some of its characteristics.
+10. Use the commands above to explore the contents of `met`. Describe in words what this file contains and some of its characteristics.
 
 ### Next Steps
 
