@@ -28,7 +28,7 @@ You don't need to reproduce any of the other analyses and figures we did in Lab 
 
 ## Non-parametric Bootstrap
 
-The first method we will explore for estimating uncertainties is the non-parametric bootstrap. This method is based on resampling the original data, with replacement, in order to generate pseudodata sets. The original analysis is then performed on this replicate pseudodata. In this case we will be rerunning our Maximum Likelihood optimization in order to estimate the FvCB parameters for each data set. This process is then repeated thousands of times in order to build up a distribution of parameter estimates.
+The first method we will explore for estimating uncertainties is the non-parametric bootstrap. This method is based on resampling the original data, with replacement, to generate pseudodata sets. The original analysis is then performed on this replicate pseudodata. In this case we will be rerunning our Maximum Likelihood optimization  to estimate the FvCB parameters for each data set. This process is then repeated thousands of times to build up a distribution of parameter estimates.
 
 The basic steps of the non-parametric bootstrap are to:
 
@@ -43,16 +43,20 @@ theta.boot = matrix(NA,nboot,5) ## FvCB model has 5 parameters
 for(i in 1:nboot){
   samp <- sample(1:length(Ci),length(Ci),replace=TRUE) ### generate sample of row numbers
   out <- suppressWarnings(optim(fit$par,lnLike,Ao=Ao[samp],Ci=Ci[samp])) ### recalculate statistics
-  theta.boot[i,] <- out$par  ## save results
+  if (out$convergence == 0) {
+    theta.boot[i,] <- out$par  ## save results
+  }
   if(i%%100 == 0) print(i) ## Counter to let you know how many times the `for` loop ran. **Comment out for knitting**
 }
 
 colnames(theta.boot) = c("Vcmax","K","cp","r","sigma")  
+theta.boot = na.omit(theta.boot) ## remove rows that didn't converge
+nrow(theta.boot)  ## check how many bootstrap iterations *did* converge
 ```
 
 ### Task 2: Confidence Intervals
 
-For each column in theta.boot, calculate a 95% Confidence interval. Do this by _applying_ the function _quantile_ to each column in theta.boot. _quantile_ is a  summary statistic function, like mean, median, and var, except that it returns the specific quantiles you ask for in a data set. For example, quantile(x,0.5) would return the 50% (median) quantile of x. In this case you'll want to use the 0.025 and 0.975 quantiles in order to exclude the 2.5% most extreme values on each side of the distribution and keep the inner 95%.
+For each column in theta.boot, calculate a 95% Confidence interval. Do this by _applying_ the function _quantile_ to each column in theta.boot. _quantile_ is a  summary statistic function, like mean, median, and var, except that it returns the specific quantiles you ask for in a data set. For example, quantile(x,0.5) would return the 50% (median) quantile of x. In this case you'll want to use the 0.025 and 0.975 quantiles  to exclude the 2.5% most extreme values on each side of the distribution and keep the inner 95%.
 
 ### Task 3: Histograms
 
@@ -98,6 +102,6 @@ Compare your results from the two approaches.
 
 To explore what would happen if you could increase your sample size, rerun the parametric bootstrap for a range of **increasing** sample sizes. Specifically if _n_ is the size of the original data set, run the analysis at sample sizes of n, 2n, 4n, 8n, 16n, and 32n.  
 
-Next, for the variable *r* specifically, plot the confidence interval (y-axis, two lines) as a function of sample size (x-axis). In plot set log='x' to put the x-axis on a log scale (since we varied n by factors of 2). Also use abline to add a horizontal line at y=0.
+Next, for the variable *r* specifically, plot the confidence interval (y-axis, two lines) as a function of sample size (x-axis). In the plot set log='x' to put the x-axis on a log scale (since we varied n by factors of 2). Also use abline to add a horizontal line at y=0.
 
-What sample size would be required to be able to distinguish *r* from zero?
+Approximately what sample size would be required to be able to distinguish *r* from zero?
