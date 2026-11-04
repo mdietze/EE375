@@ -12,11 +12,11 @@ library(shiny)
 There is a new Gulf of Maine fishery opening up for the very first time. Although the fish species in question (Lotka volterra) has been known to science for a while, the technology to catch it has only recently become available. Given the interest in this new fishery and technology, NOAA estimates that this upcoming year will see an unprecedented surge of fishing effort for L. volterra. Your job is to determine the best way to manage the Gulf of Maine L. volterra fishery.
 Scientists have been studying L. volterra in the lab for many years, so they are confident that this species grows according to a simple logistic function with an intrinsic growth rate (r) of 0.6 fish per fish per year. Since no fishing has taken place, it is assumed that the current stock of 3,200,000 tonnes in the Gulf of Maine is the carrying capacity.
 
-To explore management options we're going to create a decision support tool centered on a set of interactive visualizations using an R technology called Shiny.  To learn more about creating interactive documents in Shiny, see [here](http://rmarkdown.rstudio.com/authoring_shiny.html) and [here](https://shiny.rstudio.com/articles/interactive-docs.html). 
+To explore management options we're going to create a decision support tool centered on a set of interactive visualizations by developing a Shiny app.
 
 When completing this lab, make sure to reference the instructions and sequence of steps from Lab 3 -- in particular, **make sure you can get a graphic to work non-interactively before you add Shiny** and **add complexity one step at a time (and Knit in between) so if something breaks it's clear where the error is**.
 
-**LIKE LAB 3, WE'RE GOING TO INCREMENTALLY ADD COMPLEXITY TO OUR APP**. We are NOT going to make multiple copies of the app.
+**LIKE LAB 3, WE'RE GOING TO INCREMENTALLY ADD COMPLEXITY TO OUR APP**. Please develop the app in a single R code block, do NOT make multiple copies of the app in different R code blocks.
 
 ## A. Sustainable yield: Shiny basics
 
@@ -47,7 +47,7 @@ First, let's begin by considering the population without harvest. This code is d
   ####################
   ## Growth curve plot
   
-  Nt = seq(0,input$K*1.1,length=1000) ## seqence of N values over which we'll calculate growth
+  Nt = seq(0,input$K*1.1,length=1000) ## sequence of N values over which we'll calculate growth
   dN = input$r*Nt*(1-Nt/K)            ## Growth curve (dN/dt)
   
   plot(Nt,dN,xlab="N",ylab = "dN/dt",

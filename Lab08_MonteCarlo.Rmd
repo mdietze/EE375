@@ -85,14 +85,14 @@ We can start with the code we wrote for the parametric bootstrap prediction as t
 ```
     Aboot = rnorm(n,FvCB(theta,Ciboot),theta[5]) ### sample 
 ```
-Next we want to split this into two lines: one where we save the prediction for the mean, the other where we save the predicted pseudodata.
+Next we want to split this into two lines: one where we save the prediction for the mean  (which we'll use to calculate the CI), the other where we save the predicted pseudodata (which we'll use to calculate the PI).
 
 ```
    Aconf[i,] = FvCB(<insert new parameters> , <insert new data>) ## predict means
    Apred[i,] = rnorm(nrow(as.data.frame(newdata)),Aconf[i,],Tpred[i,5])         ## predict pseudodata
 ```
 
-At this point you should be able to assemble and run your Monte Carlo loop.
+**At this point, you should assemble and run your Monte Carlo loop.**
 
 ## Task 4: Summarize CI and PI
 
